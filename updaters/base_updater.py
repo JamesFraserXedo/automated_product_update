@@ -70,7 +70,7 @@ class BaseUpdater:
                     if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
                         raise Exception('Could not sort list')
 
-        product_codes = self.driver.find_elements_by_xpath("//tr[@role='row']/td[2]")
+        product_codes = self.driver.find_elements_by_xpath("//tr[@role='row']/td[text()='{}']/..//input[@title='Edit']".format(product.style))
         if len(product_codes) == 0:
             status = StatusCodes.NEEDS_CREATED
             return {
@@ -79,18 +79,18 @@ class BaseUpdater:
             }
 
         if len(product_codes) > 1:
-            count = 0
-            for product_code in product_codes:
-                if product_code.text == product.style:
-                    count += 1
+            # count = 0
+            # for product_code in product_codes:
+            #     if product_code.text == product.style:
+            #         count += 1
 
-            if count > 1:
-                messages.append("\tMore than one product with this code ({}) found".format(product.style))
-                status = StatusCodes.ERROR
-                return {
-                    "status": status,
-                    "messages": messages
-                }
+            # if count > 1:
+            messages.append("\tMore than one product with this code ({}) found".format(product.style))
+            status = StatusCodes.ERROR
+            return {
+                "status": status,
+                "messages": messages
+            }
 
         edit_product_button = Utils.find_element_by_xpath_wait(self.driver, "//tr[@role='row']/td[text()='{}']/..//input[@title='Edit']".format(product.style))
         edit_product_button.click()

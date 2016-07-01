@@ -39,18 +39,18 @@ def update(spreadsheet_name, loader, updater):
 
     updater.teardown()
 
-# update('Main', 13, MainLoader(), MainUpdater())
-# update('Blu', BluLoader(), BluUpdater())
-update('Voyage', VoyageLoader(), VoyageUpdater())
-# update('Angelina', AngelinaLoader(), ())
-# update('Julietta', JuliettaLoader(), ())
+# update('Main', 13, MainLoader(), MorileeUpdater())
+# update('Blu', BluLoader(), MorileeUpdater())
+# update('Voyage', VoyageLoader(), VoyageUpdater())
+# update('Angelina', AngelinaLoader(), MorileeUpdater())
+# update('Julietta', JuliettaLoader(), MorileeUpdater())
 #
 # # VIZCAYA and VALENCIA sections
-# update('Vizcaya', VizcayaLoader(), ())
+# update('Vizcaya', VizcayaLoader(), MorileeUpdater())
 #
-# update('Sticks', SticksLoader(), ())
-# update('Paparazzi Cont.', PaparazziContLoader(), ())
-# update('ABM', AbmLoader(), ())
-# update('Tulle Affairs', TulleAffairsLoader(), ())
-# update('Affairs', AffairsLoader(), ())
-# update('AF ABM', AfAbmLoader(), ())
+# update('Sticks', SticksLoader(), MorileeUpdater())
+# update('Paparazzi Cont.', PaparazziContLoader(), MorileeUpdater())
+# update('ABM', AbmLoader(), MorileeUpdater())
+# update('Tulle Affairs', TulleAffairsLoader(), MorileeUpdater())
+update('Affairs', AffairsLoader(), MorileeUpdater())
+# update('AF ABM', AfAbmLoader(), MorileeUpdater())
