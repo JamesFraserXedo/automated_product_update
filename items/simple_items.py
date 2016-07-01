@@ -67,26 +67,8 @@ class AfAbmItem(BaseItem):
         super().__init__(style, uk_wholesale_price, colours_available, uk_size_range)
 
 
-
-"""To Do"""
-
 class VoyageItem(BaseItem):
 
-    def __init__(self, style, uk_wholesale_price, colours_available, uk_size_range):
+    def __init__(self, style, comments, uk_wholesale_price, colours_available, uk_size_range):
         super().__init__(style, uk_wholesale_price, colours_available, uk_size_range)
-
-class BridalExtrasItem(BaseItem):
-
-    def __init__(self, style, uk_wholesale_price, colours_available, uk_size_range):
-        super().__init__(style, uk_wholesale_price, colours_available, uk_size_range)
-
-
-class AbmColours(BaseItem):
-
-    def __init__(self, style, uk_wholesale_price, colours_available, uk_size_range):
-        super().__init__(style, uk_wholesale_price, colours_available, uk_size_range)
-
-
-class AbmExtras(BaseItem):
-    def __init__(self, style, uk_wholesale_price, colours_available, uk_size_range):
-        super().__init__(style, uk_wholesale_price, colours_available, uk_size_range)
+        self.comments = comments

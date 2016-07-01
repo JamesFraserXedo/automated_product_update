@@ -63,8 +63,9 @@ class BaseUpdater:
 
         product_codes = self.driver.find_elements_by_xpath("//tr[@role='row']/td[2]")
         if len(product_codes) == 0:
-           return {
-                "status": StatusCodes.NEEDS_CREATED,
+            status = StatusCodes.NEEDS_CREATED
+            return {
+                "status": status,
                 "messages": messages
             }
 
@@ -76,8 +77,9 @@ class BaseUpdater:
 
             if count > 1:
                 messages.append("\tMore than one product with this code ({}) found".format(product.style))
+                status = StatusCodes.ERROR
                 return {
-                    "status": StatusCodes.ERROR,
+                    "status": status,
                     "messages": messages
                 }
 
@@ -88,8 +90,9 @@ class BaseUpdater:
         current_code = current_code_label.get_attribute("value")
         if current_code != product.style:
             messages.append("\tAttempted to update code {} , but accessed {} instead".format(product.style, current_code))
+            status = StatusCodes.ERROR
             return {
-                "status": StatusCodes.ERROR,
+                "status": status,
                 "messages": messages
             }
 
@@ -97,8 +100,9 @@ class BaseUpdater:
         current_size_range = size_range_select.first_selected_option.text
         if product.uk_size_range.replace(' ', '') not in current_size_range.replace(' ', ''):
             messages.append("\tExpected size range {} , but found {} instead".format(product.uk_size_range, current_size_range))
+            status = StatusCodes.WARNING
             return {
-                "status": StatusCodes.WARNING,
+                "status": status,
                 "messages": messages
             }
 

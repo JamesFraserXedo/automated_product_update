@@ -1,14 +1,20 @@
-import xlrd
-from loaders.simple_loaders import MainLoader
+from loaders.other_loaders import *
+from loaders.simple_loaders import *
+from updaters.simple_updaters import *
 from status_codes import StatusCodes
-from updaters.simple_updaters import MainUpdater
 
 wb = xlrd.open_workbook('datasheets/ML UK PRICE LIST 2016 03.xls')
 
 
-def update(spreadsheet_name, start_index, loader, updater):
+def update(spreadsheet_name, loader, updater):
     sheet = wb.sheet_by_name(spreadsheet_name)
     rows = list(sheet.get_rows())
+
+    start_index = 0
+    for row in rows:
+        start_index += 1
+        if str(row[0].value) == "Style":
+            break
 
     loader.load(rows[start_index:])
 
@@ -32,39 +38,18 @@ def update(spreadsheet_name, start_index, loader, updater):
 
     updater.teardown()
 
-update('Main', 13, MainLoader(), MainUpdater())
-
-
-def update_blu():
-    START_INDEX = 13
-
-def update_voyage():
-    START_INDEX = 13
-
-def update_angelina():
-    START_INDEX = 11
-
-def update_julietta():
-    START_INDEX = 11
-
-def update_vicaya():
-    START_INDEX = 13
-    # Randomly puts VIZCAYA as a claim into their sheets
-
-def update_sticks():
-    START_INDEX = 14
-
-def update_paparazzi_cont():
-    START_INDEX = 14
-
-def update_abm():
-    START_INDEX = 12
-
-def update_tulle_affairs():
-    START_INDEX = 12
-
-def update_affairs():
-    START_INDEX = 12
-
-def update_af_abm():
-    START_INDEX = 11
+# update('Main', 13, MainLoader(), MainUpdater())
+update('Blu', BluLoader(), BluUpdater())
+# update('Voyage', VoyageLoader(), ())
+# update('Angelina', AngelinaLoader(), ())
+# update('Julietta', JuliettaLoader(), ())
+#
+# # VIZCAYA and VALENCIA sections
+# update('Vizcaya', VizcayaLoader(), ())
+#
+# update('Sticks', SticksLoader(), ())
+# update('Paparazzi Cont.', PaparazziContLoader(), ())
+# update('ABM', AbmLoader(), ())
+# update('Tulle Affairs', TulleAffairsLoader(), ())
+# update('Affairs', AffairsLoader(), ())
+# update('AF ABM', AfAbmLoader(), ())

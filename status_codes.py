@@ -1,6 +1,6 @@
 class StatusCodes:
     ERROR = 'ERROR'
-    WARNING = 'WARNING'
+    NEEDS_CREATED = 'NEEDS_CREATED'
     OK = 'OK'
     UPDATED = 'UPDATED'
-    NEEDS_CREATED = 'NEEDS_CREATED'
+    WARNING = 'WARNING'

@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions
 from selenium.common.exceptions import *
 
 
@@ -9,25 +9,24 @@ class Utils:
     def find_element_by_xpath_wait(driver, loc):
         wait = WebDriverWait(
             driver,
-            10,
+            30,
             poll_frequency=1,
             ignored_exceptions=[
                 ElementNotVisibleException,
                 ElementNotSelectableException
             ]
         )
-        return wait.until(EC.element_to_be_clickable((By.XPATH, loc)))
-
+        return wait.until(expected_conditions.element_to_be_clickable((By.XPATH, loc)))
 
     @staticmethod
     def find_element_by_id_wait(driver, loc):
         wait = WebDriverWait(
             driver,
-            10,
+            30,
             poll_frequency=1,
             ignored_exceptions=[
                 ElementNotVisibleException,
                 ElementNotSelectableException
             ]
         )
-        return wait.until(EC.element_to_be_clickable((By.ID, loc)))
+        return wait.until(expected_conditions.element_to_be_clickable((By.ID, loc)))
