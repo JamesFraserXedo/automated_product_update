@@ -1,0 +1,10 @@
+SHEET_NAME = 'sheet_name'
+COLLECTION = 'collection'
+LOADER = 'loader'
+PRODUCT_TYPE = 'product_type'
+
+ERROR = 'ERROR'
+NEEDS_CREATED = 'NEEDS_CREATED'
+OK = 'OK'
+UPDATED = 'UPDATED'
+WARNING = 'WARNING'

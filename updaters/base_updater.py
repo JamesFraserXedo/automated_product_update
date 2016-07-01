@@ -2,19 +2,22 @@ import time
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
 
+from StatusObject import StatusObject
 from credentials import Credentials
-from status_codes import StatusCodes
+from codec import *
 from utils import Utils
 
 
 class BaseUpdater:
 
-    def __init__(self):
+    def __init__(self, customer_code):
         self.driver = None
-        self.customer_code = ''
+        self.customer_code = customer_code
 
     def create_driver(self):
         self.driver = webdriver.Firefox()
+
+    def impersonate(self):
         self.driver.get(Credentials.url)
 
         account_code_inputbox = Utils.find_element_by_id_wait(self.driver, "AccountCode")
@@ -27,10 +30,9 @@ class BaseUpdater:
         password_inputbox.send_keys(Credentials.password)
         login_button.click()
 
-        impersonate_button = Utils.find_element_by_xpath_wait(self.driver, "//a[@title='Impersonate']/..")
-        impersonate_button.click()
+        impersonate_link = Utils.find_element_by_xpath_wait(self.driver, "//a[@title='Impersonate']/..")
+        impersonate_link.click()
 
-    def impersonate(self):
         customer_code_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//*[@class='custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left ui-autocomplete-input']")
         customer_code_inputbox.send_keys(self.customer_code)
 
@@ -44,7 +46,7 @@ class BaseUpdater:
         impersonate_button.click()
 
     def update_product(self, product):
-        status = StatusCodes.OK
+        status = OK
         messages = []
 
         live_products_button = Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Live Products']")
@@ -72,25 +74,12 @@ class BaseUpdater:
 
         product_codes = self.driver.find_elements_by_xpath("//tr[@role='row']/td[text()='{}']/..//input[@title='Edit']".format(product.style))
         if len(product_codes) == 0:
-            status = StatusCodes.NEEDS_CREATED
-            return {
-                "status": status,
-                "messages": messages
-            }
+            return self.handle_creation(product, messages)
 
         if len(product_codes) > 1:
-            # count = 0
-            # for product_code in product_codes:
-            #     if product_code.text == product.style:
-            #         count += 1
-
-            # if count > 1:
             messages.append("\tMore than one product with this code ({}) found".format(product.style))
-            status = StatusCodes.ERROR
-            return {
-                "status": status,
-                "messages": messages
-            }
+            status = ERROR
+            return StatusObject(status, messages)
 
         edit_product_button = Utils.find_element_by_xpath_wait(self.driver, "//tr[@role='row']/td[text()='{}']/..//input[@title='Edit']".format(product.style))
         edit_product_button.click()
@@ -99,36 +88,27 @@ class BaseUpdater:
         current_code = current_code_label.get_attribute("value")
         if current_code != product.style:
             messages.append("\tAttempted to update code {} , but accessed {} instead".format(product.style, current_code))
-            status = StatusCodes.ERROR
-            return {
-                "status": status,
-                "messages": messages
-            }
+            status = ERROR
+            return StatusObject(status, messages)
 
         collection_select = Select(Utils.find_element_by_id_wait(self.driver, "CollectionUnid"))
         current_collection_text = collection_select.first_selected_option.text
         if current_collection_text != product.collection:
             messages.append("\tExpected collection '{}' , but found '{}' instead".format(product.collection, current_collection_text))
-            status = StatusCodes.WARNING
-            return {
-                "status": status,
-                "messages": messages
-            }
+            status = WARNING
+            return StatusObject(status, messages)
 
         size_range_select = Select(Utils.find_element_by_xpath_wait(self.driver, "//*[@class='size-templates-ddl']"))
         current_size_range = size_range_select.first_selected_option.text
         if product.uk_size_range.replace(' ', '') not in current_size_range.replace(' ', ''):
             messages.append("\tExpected size range {} , but found {} instead".format(product.uk_size_range, current_size_range))
-            status = StatusCodes.WARNING
-            return {
-                "status": status,
-                "messages": messages
-            }
+            status = WARNING
+            return StatusObject(status, messages)
 
         price_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//input[contains(@id, 'CostPrice')]")
         current_uk_wholesale_price = float(price_inputbox.get_attribute("value"))
         if current_uk_wholesale_price != product.uk_wholesale_price:
-            status = StatusCodes.UPDATED,
+            status = UPDATED
             price_inputbox.clear()
             price_inputbox.send_keys(str(round(product.uk_wholesale_price, 2)))
             messages.append("\tUpdated price from £{} to £{}".format(round(current_uk_wholesale_price, 2), round(product.uk_wholesale_price, 2)))
@@ -141,7 +121,7 @@ class BaseUpdater:
 
         if product.marketing_info:
             if current_consumer_marketing_info == current_retailer_marketing_info == '':
-                status = StatusCodes.UPDATED,
+                status = UPDATED
                 consumer_marketing_info_inputbox.send_keys(product.marketing_info)
                 messages.append("Added marketing info:")
                 messages.append("\t{}".format(product.marketing_info))
@@ -150,20 +130,21 @@ class BaseUpdater:
                 messages.append("Consumer and Retailer marketing info did not match before editing:")
                 messages.append("\t{}".format(current_consumer_marketing_info))
                 messages.append("\t{}".format(current_retailer_marketing_info))
-                status = StatusCodes.WARNING,
+                status = WARNING
 
             else:
                 messages.append("Consumer and Retailer marketing already contain data:")
                 messages.append("\t{}".format(current_consumer_marketing_info.replace('\r', '').replace('\n', '')))
-                status = StatusCodes.WARNING,
+                status = WARNING
 
         save_button = Utils.find_element_by_id_wait(self.driver, "SaveProduct")
         save_button.click()
 
-        return {
-            "status": status,
-            "messages": messages
-        }
+        return StatusObject(status, messages)
+
+    def handle_creation(self, product, messages):
+        status = NEEDS_CREATED
+        return StatusObject(status, messages)
 
     def teardown(self):
         self.driver.quit()

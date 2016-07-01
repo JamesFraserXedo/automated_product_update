@@ -6,9 +6,11 @@ class BaseLoader:
     def __init__(self):
         self.rows = None
         self.items = []
+        self.collection = None
 
-    def load(self, rows):
+    def load(self, collection_name, rows):
         self.rows = rows
+        self.collection = collection_name
         self.items = []
         for row in self.rows:
             if row[0].ctype == xlrd.biffh.XL_CELL_TEXT:

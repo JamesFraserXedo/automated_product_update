@@ -1,18 +1,19 @@
 import xlrd
 
-from items.other_items import *
+from items.simple_items import MorileeItem
 from loaders.base_loader import BaseLoader
 
 
 class VoyageLoader(BaseLoader):
     def __init__(self):
         super().__init__()
-        self.item_type = type(VoyageItem(None, None, None, None, None, None))
-        self.collection = 'Voyage Collection'
+        self.item_type = type(MorileeItem(None, None, None, None, None, None))
+        self.collection = None
 
-    def load(self, rows):
+    def load(self, collection_name, rows):
         self.rows = rows
         self.items = []
+        self.collection = collection_name
         for row in self.rows:
             if row[0].ctype == xlrd.biffh.XL_CELL_TEXT:
                 self.items[-1].marketing_info = row[0].value
