@@ -61,6 +61,15 @@ class BaseUpdater:
 
         time.sleep(1)
 
+        if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
+            Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Code']").click()
+            if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
+                Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Code']").click()
+                if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
+                    Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Code']").click()
+                    if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
+                        raise Exception('Could not sort list')
+
         product_codes = self.driver.find_elements_by_xpath("//tr[@role='row']/td[2]")
         if len(product_codes) == 0:
             status = StatusCodes.NEEDS_CREATED
@@ -83,7 +92,7 @@ class BaseUpdater:
                     "messages": messages
                 }
 
-        edit_product_button = Utils.find_element_by_xpath_wait(self.driver, "//input[@title='Edit']")
+        edit_product_button = Utils.find_element_by_xpath_wait(self.driver, "//tr[@role='row']/td[text()='{}']/..//input[@title='Edit']".format(product.style))
         edit_product_button.click()
 
         current_code_label = Utils.find_element_by_id_wait(self.driver, "StagedProduct_Code")
@@ -91,6 +100,16 @@ class BaseUpdater:
         if current_code != product.style:
             messages.append("\tAttempted to update code {} , but accessed {} instead".format(product.style, current_code))
             status = StatusCodes.ERROR
+            return {
+                "status": status,
+                "messages": messages
+            }
+
+        collection_select = Select(Utils.find_element_by_id_wait(self.driver, "CollectionUnid"))
+        current_collection_text = collection_select.first_selected_option.text
+        if current_collection_text != product.collection:
+            messages.append("\tExpected collection '{}' , but found '{}' instead".format(product.collection, current_collection_text))
+            status = StatusCodes.WARNING
             return {
                 "status": status,
                 "messages": messages

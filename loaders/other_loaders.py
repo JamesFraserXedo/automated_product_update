@@ -1,13 +1,14 @@
 import xlrd
 
-from items.simple_items import *
+from items.other_items import *
 from loaders.base_loader import BaseLoader
 
 
 class VoyageLoader(BaseLoader):
     def __init__(self):
         super().__init__()
-        self.item_type = type(VoyageItem(None, None, None, None, None))
+        self.item_type = type(VoyageItem(None, None, None, None, None, None))
+        self.collection = 'Voyage Collection'
 
     def load(self, rows):
         self.rows = rows
@@ -22,6 +23,7 @@ class VoyageLoader(BaseLoader):
                         comments=str(row[1].value),
                         uk_wholesale_price=float(row[2].value),
                         colours_available=str(row[3].value),
-                        uk_size_range=str(row[4].value)
+                        uk_size_range=str(row[4].value),
+                        collection=self.collection
                     )
                 )

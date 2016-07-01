@@ -19,6 +19,7 @@ class BaseLoader:
                         style=str(row[0].value).replace('.0', ''),
                         uk_wholesale_price=float(row[1].value),
                         colours_available=str(row[2].value),
-                        uk_size_range=str(row[3].value)
+                        uk_size_range=str(row[3].value),
+                        collection=self.collection
                     )
                 )

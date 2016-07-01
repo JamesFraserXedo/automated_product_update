@@ -1,5 +1,6 @@
 from loaders.other_loaders import *
 from loaders.simple_loaders import *
+from updaters.other_updaters import *
 from updaters.simple_updaters import *
 from status_codes import StatusCodes
 
@@ -29,7 +30,7 @@ def update(spreadsheet_name, loader, updater):
         except Exception as e:
             status_message = {
                 "status": StatusCodes.ERROR,
-                "messages": e
+                "messages": [str(e)]
             }
         status = status_message["status"]
         print("{} - {}".format(status, item))
@@ -39,8 +40,8 @@ def update(spreadsheet_name, loader, updater):
     updater.teardown()
 
 # update('Main', 13, MainLoader(), MainUpdater())
-update('Blu', BluLoader(), BluUpdater())
-# update('Voyage', VoyageLoader(), ())
+# update('Blu', BluLoader(), BluUpdater())
+update('Voyage', VoyageLoader(), VoyageUpdater())
 # update('Angelina', AngelinaLoader(), ())
 # update('Julietta', JuliettaLoader(), ())
 #
