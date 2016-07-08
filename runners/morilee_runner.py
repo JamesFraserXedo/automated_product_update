@@ -57,7 +57,7 @@ class MoriLeeRunner(BaseRunner):
             LOADER: MoriLeeLoader(),
             SHEET_NAME: SheetNames.MoriLee.AFFAIRS
         },
-        # {
+        # { # This needs checked for the Vizcaya / Valencia weirdness
         #     COLLECTION: Collections.MoriLee.Vizcaya,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
         #     LOADER: VizcayaLoader(),

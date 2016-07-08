@@ -19,10 +19,10 @@ class Utils:
         return wait.until(expected_conditions.element_to_be_clickable((By.XPATH, loc)))
 
     @staticmethod
-    def find_element_by_id_wait(driver, loc):
+    def find_element_by_id_wait(driver, loc, timeout=30):
         wait = WebDriverWait(
             driver,
-            30,
+            timeout,
             poll_frequency=1,
             ignored_exceptions=[
                 ElementNotVisibleException,

@@ -1,7 +1,7 @@
 import time
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
-
+from product_types import ProductTypes
 from StatusObject import StatusObject
 from credentials import Credentials
 from codec import *
@@ -143,8 +143,91 @@ class BaseUpdater:
         return StatusObject(status, messages)
 
     def handle_creation(self, product, messages):
-        status = NEEDS_CREATED
-        return StatusObject(status, messages)
+        add_product_button = Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Add Product']")
+        add_product_button.click()
+
+        brand_select = Select(Utils.find_element_by_id_wait(self.driver, "BrandUnid"))
+        brand_select.select_by_visible_text('Mori Lee')
+
+        product_select = Select(Utils.find_element_by_id_wait(self.driver, "ProductTypeUnid"))
+        if product.product_type == ProductTypes.MoriLee.BRIDESMAID_DRESS:
+            product_select.select_by_visible_text('Bridesmaid Dress')
+        elif product.product_type == ProductTypes.MoriLee.WEDDING_DRESS:
+            product_select.select_by_visible_text('Wedding Dress')
+        else:
+            print("No recognise product type {}".format(product.product_type))
+            status = NEEDS_CREATED
+            messages.append("Could not select product type {}".format(product.product_type))
+            return StatusObject(status, messages)
+
+        create_product_button = Utils.find_element_by_id_wait(self.driver, "CreateProductSingleButton")
+        create_product_button.click()
+
+        code_inputbox = Utils.find_element_by_id_wait(self.driver, "StagedProduct_Code")
+        code_inputbox.send_keys(product.style)
+        name_inputbox = Utils.find_element_by_id_wait(self.driver, "StagedProduct_Caption")
+        name_inputbox.send_keys(product.style)
+
+        collection_select = Select(Utils.find_element_by_id_wait(self.driver, "CollectionUnid"))
+        collection_select.select_by_visible_text(product.collection)
+
+        # TODO
+        leadtime_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//input[contains(@id, 'LeadTime')]")
+
+        price_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//input[contains(@id, 'CostPrice')]")
+        price_inputbox.send_keys(str(round(product.uk_wholesale_price, 2)))
+
+        # TODO
+        rrp_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//input[contains(@id, 'Rrp')]")
+
+        # TODO
+        startdate_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//input[contains(@id, 'StartDatepicker')]")
+
+        size_range_select = Select(Utils.find_element_by_xpath_wait(self.driver, "//*[@class='size-templates-ddl']"))
+        if product.uk_size_range.replace(' ', '') == '18-30':
+            size_range_select.select_by_visible_text('18-30 (Size: 18 -> 30)')
+        elif product.uk_size_range.replace(' ', '') == '18-34':
+            size_range_select.select_by_visible_text('18-34 (Size: 18 -> 34)')
+        elif product.uk_size_range.replace(' ', '') == '4-26':
+            size_range_select.select_by_visible_text('4-26 (Size: 4 -> 26)')
+        elif product.uk_size_range.replace(' ', '') == '4-30':
+            size_range_select.select_by_visible_text('4-30 (Size: 4 -> 30)')
+        elif product.uk_size_range.replace(' ', '') == '6-24':
+            size_range_select.select_by_visible_text('6-24 (Size: 6 -> 24)')
+        else:
+            status = NEEDS_CREATED
+            messages.append("Could not select size {}".format(product.uk_size_range))
+            return StatusObject(status, messages)
+
+        edit_colours_button = Utils.find_element_by_id_wait(self.driver, "EditColours")
+        edit_colours_button.click()
+
+        for colour in product.colours_available.split(','):
+            colour = colour.strip()
+
+            try:
+                colour_select = Select(Utils.find_element_by_id_wait(self.driver, "AvailableIds"))
+                colour_select.select_by_visible_text(colour)
+
+                select_highlighted_button = Utils.find_element_by_id_wait(self.driver, "SelectHighlighted")
+                select_highlighted_button.click()
+            except:
+                messages.append("Could not add colour {}".format(colour))
+
+        update_close_button = Utils.find_element_by_id_wait(self.driver, "SaveDialog")
+        update_close_button.click()
+
+        if product.marketing_info:
+            consumer_marketing_info_inputbox = Utils.find_element_by_id_wait(self.driver, "StagedProduct_ConsumerMarketingInfo")
+            retailer_marketing_info_inputbox = Utils.find_element_by_id_wait(self.driver, "StagedProduct_MarketingInfo")
+
+            consumer_marketing_info_inputbox.send_keys(product.marketing_info)
+            retailer_marketing_info_inputbox.send_keys(product.marketing_info)
+
+        quit()
+
+        save_product_button = Utils.find_element_by_id_wait(self.driver, "SaveProduct")
+        # save_product_button.click()
 
     def teardown(self):
         self.driver.quit()

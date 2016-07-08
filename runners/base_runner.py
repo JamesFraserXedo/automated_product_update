@@ -1,13 +1,19 @@
+import copy
+import threading
+
 import xlrd
 
+from credentials import Credentials
 from codec import *
 from updaters.base_updater import BaseUpdater
+from updaters.update_handler import UpdateHandler
 
 
 class BaseRunner:
     def __init__(self, filename):
         self.filename = filename
         self.sheet_rows = {}
+        self.items = []
 
         workbook = xlrd.open_workbook(self.filename)
         print(type(workbook), workbook)
@@ -23,29 +29,22 @@ class BaseRunner:
                 return start_index
         raise Exception("Could not determine start index for sheet '{}'".format(sheet_name))
 
-    def update(self, sheet_name, loader, customer_code, collection_name):
+    def update(self, sheet_name, loader, customer_code, collection_name, product_type):
         start_index = self.get_start_index(sheet_name)
         rows = self.sheet_rows[sheet_name]
 
-        loader.load(collection_name, rows[start_index:])
+        loader.load(collection_name, rows[start_index:], product_type)
 
-        updater = BaseUpdater(customer_code)
-        updater.create_driver()
-        updater.impersonate()
+        updaters = []
+        self.items = copy.deepcopy(loader.items)
 
-        items = loader.items
+        for x in range(Credentials.num_threads):
+            t = UpdateHandler(self.items, customer_code)
+            updaters.append(t)
+            t.start()
 
-        for item in items:
-            try:
-                status_message = updater.update_product(item)
-            except Exception as e:
-                status_message = (ERROR, [str(e)])
-
-            print("{} - {}".format(status_message.status, item))
-            for message in status_message.messages:
-                print("\t{}".format(message))
-
-        updater.teardown()
+        for updater in updaters:
+            updater.join()
 
     def run(self):
         for sheet in self.sheets_to_update:
@@ -53,5 +52,6 @@ class BaseRunner:
                 sheet_name=sheet[SHEET_NAME],
                 loader=sheet[LOADER],
                 customer_code=self.customer_code,
-                collection_name=sheet[COLLECTION]
+                collection_name=sheet[COLLECTION],
+                product_type=sheet[PRODUCT_TYPE]
             )

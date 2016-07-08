@@ -1,11 +1,12 @@
 class BaseItem(object):
 
-    def __init__(self, style, uk_wholesale_price, colours_available, uk_size_range, collection, marketing_info=None, comments=None):
+    def __init__(self, style, uk_wholesale_price, colours_available, uk_size_range, collection, product_type, marketing_info=None, comments=None):
         self.style = style
         self.uk_wholesale_price = uk_wholesale_price
         self.colours_available = colours_available
         self.uk_size_range = uk_size_range
         self.collection = collection
+        self.product_type = product_type
         self.marketing_info = marketing_info
         self.comments = comments
 
