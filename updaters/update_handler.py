@@ -6,10 +6,11 @@ from updaters.base_updater import BaseUpdater
 
 
 class UpdateHandler(threading.Thread):
-    def __init__(self, items, customer_code):
+    def __init__(self, items, customer_code, logger):
         threading.Thread.__init__(self)
         self.items = items
         self.customer_code = customer_code
+        self.logger = logger
 
     def run(self):
         updater = BaseUpdater(self.customer_code)
@@ -23,11 +24,12 @@ class UpdateHandler(threading.Thread):
             except Exception as e:
                 status_message = StatusObject(ERROR, [str(e)])
 
-            output = "{} - {}\n".format(status_message.status, item)
-            for message in status_message.messages:
-                output += ("\t{}\n".format(message))
+            # output = "{} - {}\n".format(status_message.status, item)
+            # for message in status_message.messages:
+            #     output += ("\t{}\n".format(message))
 
-            print(output)
+            self.logger.log(product=item, status=status_message.status, messages=status_message.messages)
+            # print(output)
             item = self.get_next_item()
 
         updater.teardown()

@@ -1,11 +1,8 @@
 import copy
-import threading
-
 import xlrd
-
 from credentials import Credentials
 from codec import *
-from updaters.base_updater import BaseUpdater
+from logger import Logger
 from updaters.update_handler import UpdateHandler
 
 
@@ -14,9 +11,10 @@ class BaseRunner:
         self.filename = filename
         self.sheet_rows = {}
         self.items = []
+        self.logger = None
 
         workbook = xlrd.open_workbook(self.filename)
-        print(type(workbook), workbook)
+
         for sheet_name in workbook.sheet_names():
             self.sheet_rows[sheet_name] = list(workbook.sheet_by_name(sheet_name).get_rows())
 
@@ -30,6 +28,8 @@ class BaseRunner:
         raise Exception("Could not determine start index for sheet '{}'".format(sheet_name))
 
     def update(self, sheet_name, loader, customer_code, collection_name, product_type):
+        self.logger = Logger(sheet_name)
+
         start_index = self.get_start_index(sheet_name)
         rows = self.sheet_rows[sheet_name]
 
@@ -39,12 +39,14 @@ class BaseRunner:
         self.items = copy.deepcopy(loader.items)
 
         for x in range(Credentials.num_threads):
-            t = UpdateHandler(self.items, customer_code)
+            t = UpdateHandler(self.items, customer_code, self.logger)
             updaters.append(t)
             t.start()
 
         for updater in updaters:
             updater.join()
+
+        self.logger.dump_to_html()
 
     def run(self):
         for sheet in self.sheets_to_update:

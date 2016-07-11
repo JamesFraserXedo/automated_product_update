@@ -1,3 +1,6 @@
+import imghdr
+import os
+import struct
 import time
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
@@ -117,18 +120,26 @@ class BaseUpdater:
         product_colours = [x.strip() for x in product.colours_available.split(',')]
 
         if sorted(current_colours) != sorted(product_colours):
-            messages += self.product_form.update_colours(product_colours)
-            status = UPDATED
-            messages.append("Updated colours from {} to {}".format(current_colours, product_colours))
-            # messages.append("Colours do not match:")
-            # messages.append("\tExpected: {}".format(product_colours))
-            # messages.append("\tActual: {}".format(current_colours))
+
+            colour_messages = self.product_form.update_colours(product_colours)
+            if len(colour_messages) == 0:
+                status = UPDATED
+            else:
+                status = WARNING
+
+            messages += colour_messages
+            old_colours = current_colours
+            current_colours = self.product_form.get_current_colours()
+            if old_colours != current_colours:
+                messages.append("Updated colours from {} to {}".format(old_colours, current_colours))
 
         self.product_form.get_save_button().click()
 
         return StatusObject(status, messages)
 
     def handle_creation(self, product, messages):
+        print(self.get_path_to_image(product.style))
+
         status = NEEDS_CREATED
         return StatusObject(status, messages)
 
@@ -194,6 +205,7 @@ class BaseUpdater:
                 select_highlighted_button = Utils.find_element_by_id_wait(self.driver, "SelectHighlighted")
                 select_highlighted_button.click()
             except:
+                status = WARNING
                 messages.append("Could not add colour {}".format(colour))
 
         update_close_button = Utils.find_element_by_id_wait(self.driver, "SaveDialog")
@@ -209,3 +221,57 @@ class BaseUpdater:
 
     def teardown(self):
         self.driver.quit()
+
+    def get_path_to_image(self, code):
+        base_dir = 'X:\Xedo Support\Bridal Designers Info\Mori Lee'
+
+        preferred = None
+        all = []
+        for root, dirs, files in os.walk(base_dir):
+            for file in files:
+                if file.startswith(code):
+                    all.append(os.path.join(root, file))
+                    if not preferred and self.is_portrait(os.path.join(root, file)):
+                        preferred = os.path.join(root, file)
+        if not preferred and len(all) > 0:
+            preferred = all[0]
+        return preferred, all
+
+    def is_portrait(self, fname):
+        sizes = self.get_image_size(fname)
+        return sizes[0] < sizes[1]
+
+    def get_image_size(self, fname):
+        '''Determine the image type of fhandle and return its size.
+        from draco'''
+        with open(fname, 'rb') as fhandle:
+            head = fhandle.read(24)
+            if len(head) != 24:
+                return
+            if imghdr.what(fname) == 'png':
+                check = struct.unpack('>i', head[4:8])[0]
+                if check != 0x0d0a1a0a:
+                    return
+                width, height = struct.unpack('>ii', head[16:24])
+            elif imghdr.what(fname) == 'gif':
+                width, height = struct.unpack('<HH', head[6:10])
+            elif imghdr.what(fname) == 'jpeg':
+                try:
+                    fhandle.seek(0)  # Read 0xff next
+                    size = 2
+                    ftype = 0
+                    while not 0xc0 <= ftype <= 0xcf:
+                        fhandle.seek(size, 1)
+                        byte = fhandle.read(1)
+                        while ord(byte) == 0xff:
+                            byte = fhandle.read(1)
+                        ftype = ord(byte)
+                        size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                    # We are at a SOFn block
+                    fhandle.seek(1, 1)  # Skip `precision' byte.
+                    height, width = struct.unpack('>HH', fhandle.read(4))
+                except Exception:  # IGNORE:W0703
+                    return
+            else:
+                return
+            return width, height
