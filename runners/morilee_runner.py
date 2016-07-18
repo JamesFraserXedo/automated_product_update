@@ -12,7 +12,7 @@ class MoriLeeRunner(BaseRunner):
     def __init__(self, filename):
         super().__init__(filename)
 
-    customer_code = 'morilee'
+    customer_code = 'XMORILEE'
 
     sheets_to_update = [
         {
@@ -78,13 +78,13 @@ class MoriLeeRunner(BaseRunner):
         #     SHEET_NAME: SheetNames.MoriLee.PAPARAZZI_CONT
         # },
         # {
-        #     COLLECTION: Collections.MoriLee.,
+        #     COLLECTION: Collections.MoriLee.MORI_LEE_BRIDESMAIDS,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
         #     LOADER: MoriLeeLoader(),
         #     SHEET_NAME: SheetNames.MoriLee.ABM
         # },
         # {
-        #     COLLECTION: Collections.MoriLee.,
+        #     COLLECTION: Collections.MoriLee.ANGELINA_FACCENDA,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
         #     LOADER: MoriLeeLoader(),
         #     SHEET_NAME: SheetNames.MoriLee.AF_ABM

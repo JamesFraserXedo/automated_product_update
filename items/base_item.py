@@ -10,6 +10,14 @@ class BaseItem(object):
         self.marketing_info = marketing_info
         self.comments = comments
 
+    @property
+    def size_lower(self):
+        return str(self.uk_size_range).split("-")[0].strip()
+
+    @property
+    def size_upper(self):
+        return str(self.uk_size_range).split("-")[1].strip()
+
     def __repr__(self):
         return str({
             "style": self.style,

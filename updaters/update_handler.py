@@ -1,4 +1,5 @@
 import threading
+import traceback
 
 from StatusObject import StatusObject
 from codec import *
@@ -14,7 +15,6 @@ class UpdateHandler(threading.Thread):
 
     def run(self):
         updater = BaseUpdater(self.customer_code)
-        updater.create_driver()
         updater.impersonate()
 
         item = self.get_next_item()
@@ -22,7 +22,7 @@ class UpdateHandler(threading.Thread):
             try:
                 status_message = updater.update_product(item)
             except Exception as e:
-                status_message = StatusObject(ERROR, [str(e)])
+                status_message = StatusObject(ERROR, [str(e), ''.join(traceback.format_exc())])
 
             # output = "{} - {}\n".format(status_message.status, item)
             # for message in status_message.messages:
