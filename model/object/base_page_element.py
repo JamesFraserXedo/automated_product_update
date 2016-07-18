@@ -1,6 +1,6 @@
 from selenium.webdriver.support.select import Select
 
-from utils import Utils
+import Utils
 
 
 class BasePageElement(object):
@@ -11,7 +11,7 @@ class BasePageElement(object):
 
     @property
     def element(self):
-        return Utils.find_element_wait(self.driver, self.locator[0], self.locator[1])
+        return Utils.find_element_wait(self.driver, self.locator)
 
     @property
     def text(self):

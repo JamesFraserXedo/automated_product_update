@@ -1,18 +1,15 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.select import Select
-
-from StatusObject import StatusObject
-from model.locators import ProductForm
-from model.object.base_page_element import BasePageElement, Inputbox, Selector, Button
+import Tools
+from model.locators import Locators
+from model.object.base_page_element import *
 from model.object.base_page_object import BasePageObject
-from utils import Utils
+import Utils
 
 
 class CodeInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.code_inputbox
+            locator=Locators.ProductForm.code_inputbox
         )
 
 
@@ -20,7 +17,7 @@ class NameInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.name_inputbox
+            locator=Locators.ProductForm.name_inputbox
         )
 
 
@@ -28,7 +25,7 @@ class CollectionSelect(Selector):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.collection_select
+            locator=Locators.ProductForm.collection_select
         )
 
 
@@ -36,7 +33,7 @@ class ImageUploader(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.image_uploader
+            locator=Locators.ProductForm.image_uploader
         )
 
 
@@ -44,7 +41,7 @@ class SizeRangeSelect(Selector):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.size_range_select
+            locator=Locators.ProductForm.size_range_select
         )
 
 
@@ -52,7 +49,7 @@ class PriceInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.price_inputbox
+            locator=Locators.ProductForm.price_inputbox
         )
 
 
@@ -60,7 +57,7 @@ class ConsumerMarketingInfoInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.consumer_marketing_info_inputbox
+            locator=Locators.ProductForm.consumer_marketing_info_inputbox
         )
 
 
@@ -68,7 +65,7 @@ class RetailerMarketingInfoInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.retailer_marketing_info_inputbox
+            locator=Locators.ProductForm.retailer_marketing_info_inputbox
         )
 
 
@@ -76,7 +73,7 @@ class SaveButton(Button):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.save_button
+            locator=Locators.ProductForm.save_button
         )
 
 
@@ -84,7 +81,7 @@ class LeadTimeInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.leadtime_inputbox
+            locator=Locators.ProductForm.leadtime_inputbox
         )
 
 
@@ -92,7 +89,7 @@ class RrpInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.rrp_inputbox
+            locator=Locators.ProductForm.rrp_inputbox
         )
 
 
@@ -100,7 +97,7 @@ class StartDateInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.start_date_inputbox
+            locator=Locators.ProductForm.start_date_inputbox
         )
 
 
@@ -108,7 +105,7 @@ class ExpandAllOptionsButton(Button):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.expand_all_button
+            locator=Locators.ProductForm.expand_all_button
         )
 
 
@@ -116,7 +113,7 @@ class SpecialLengthOptionButton(Button):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
-            locator=ProductForm.special_length_option
+            locator=Locators.ProductForm.special_length_option
         )
 
 
@@ -178,3 +175,41 @@ class EditProductPage(BasePageObject):
         update_close_button = Utils.find_element_by_id_wait(self.driver, "SaveDialog")
         update_close_button.click()
         return messages
+
+    @property
+    def consumer_marketing_info(self):
+        contents = self.consumer_marketing_info_inputbox.text
+        return Tools.split_on_new_line(contents)
+
+    def append_consumer_marketing_info(self, text):
+        text = Tools.new_line_per_sentence(text)
+        text_items = Tools.split_on_new_line(text)
+
+        contents = self.consumer_marketing_info
+
+        for item in text_items:
+            if item not in contents:
+                contents.append(item)
+
+        print(Tools.list_to_string(contents))
+        self.consumer_marketing_info_inputbox.text = Tools.list_to_string(contents)
+
+
+    @property
+    def retailer_marketing_info(self):
+        contents = self.retailer_marketing_info_inputbox.text
+        return Tools.split_on_new_line(contents)
+
+    def append_retailer_marketing_info(self, text):
+        text = Tools.new_line_per_sentence(text)
+        text_items = Tools.split_on_new_line(text)
+
+        contents = self.retailer_marketing_info
+
+        for item in text_items:
+            if item not in contents:
+                contents.append(item)
+
+        print(Tools.list_to_string(contents))
+        self.retailer_marketing_info_inputbox.text = Tools.list_to_string(contents)
+        print(self.retailer_marketing_info_inputbox.text)

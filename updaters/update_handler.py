@@ -24,12 +24,7 @@ class UpdateHandler(threading.Thread):
             except Exception as e:
                 status_message = StatusObject(ERROR, [str(e), ''.join(traceback.format_exc())])
 
-            # output = "{} - {}\n".format(status_message.status, item)
-            # for message in status_message.messages:
-            #     output += ("\t{}\n".format(message))
-
             self.logger.log(product=item, status=status_message.status, messages=status_message.messages)
-            # print(output)
             item = self.get_next_item()
 
         updater.teardown()

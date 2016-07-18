@@ -1,25 +1,50 @@
-from utils import Utils
+from model.locators import Locators
+from model.object.base_page_element import *
+from model.object.base_page_object import BasePageObject
 
 
-class LoginPage:
+class AccountCodeInputbox(Inputbox):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.LoginPage.account_code_inputbox
+        )
 
+
+class UserNameInputbox(Inputbox):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.LoginPage.user_name_inputbox
+        )
+
+
+class PasswordInputbox(Inputbox):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.LoginPage.password_inputbox
+        )
+
+
+class LoginButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.LoginPage.login_button
+        )
+
+
+class LoginPage(BasePageObject):
     def __init__(self, driver):
         self.driver = driver
-
-    def get_account_code_inputbox(self):
-        return Utils.find_element_by_id_wait(self.driver, "AccountCode")
-
-    def get_user_name_inputbox(self):
-        return Utils.find_element_by_id_wait(self.driver, "UserName")
-
-    def get_password_inputbox(self):
-        return Utils.find_element_by_id_wait(self.driver, "Password")
-
-    def get_login_button(self):
-        return Utils.find_element_by_xpath_wait(self.driver, "//*[@class='commonButton inputButton']")
+        self.account_code_inputbox = AccountCodeInputbox(driver)
+        self.user_name_inputbox = UserNameInputbox(driver)
+        self.password_inputbox = PasswordInputbox(driver)
+        self.login_button = LoginButton(driver)
 
     def login(self, account_code, user_name, password):
-        self.get_account_code_inputbox().send_keys(account_code)
-        self.get_user_name_inputbox().send_keys(user_name)
-        self.get_password_inputbox().send_keys(password)
-        self.get_login_button().click()
+        self.account_code_inputbox.text = account_code
+        self.user_name_inputbox.text = user_name
+        self.password_inputbox.text = password
+        self.login_button.click()

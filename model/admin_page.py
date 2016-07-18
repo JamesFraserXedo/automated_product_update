@@ -1,11 +1,17 @@
-from utils import Utils
+from model.locators import Locators
+from model.object.base_page_element import *
+
+
+class ImpersonateButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.AdminPage.impersonate_button
+        )
 
 
 class AdminPage:
-
     def __init__(self, driver):
         self.driver = driver
-
-    def get_impersonate_button(self):
-        return Utils.find_element_by_xpath_wait(self.driver, "//a[@title='Impersonate']/..")
+        self.impersonate_button = ImpersonateButton(driver)
 

@@ -1,25 +1,44 @@
-from utils import Utils
+from model.locators import Locators
+from model.object.base_page_element import *
+from model.object.base_page_object import BasePageObject
+import Utils
 
 
-class ImpersonatePage:
+class CustomerCodeInputbox(Inputbox):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.ImpersonatePage.customer_code_inputbox
+        )
 
+
+class SelectRetailerButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.ImpersonatePage.select_retailer_button
+        )
+
+
+class ImpersonateButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.ImpersonatePage.impersonate_button
+        )
+
+
+class ImpersonatePage(BasePageObject):
     def __init__(self, driver):
         self.driver = driver
-
-    def get_customer_code_inputbox(self):
-        return Utils.find_element_by_xpath_wait(self.driver, "//*[@class='custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left ui-autocomplete-input']")
-
-    def get_select_retailer_button(self):
-        return Utils.find_element_by_id_wait(self.driver, "select-retailer")
-
-    def get_impersonate_button(self):
-        return Utils.find_element_by_xpath_wait(self.driver, "//*[@class='btnLogin button']")
+        self.customer_code_inputbox = CustomerCodeInputbox(driver)
+        self.select_retailer_button = SelectRetailerButton(driver)
+        self.impersonate_button = ImpersonateButton(driver)
 
     def impersonate(self, alias):
-        self.get_customer_code_inputbox().send_keys(alias)
-        first_result = Utils.find_element_by_xpath_wait(self.driver, "//*[@id='ui-id-1']/li")
-        first_result.click()
-        self.get_select_retailer_button().click()
-        self.get_impersonate_button().click()
+        self.customer_code_inputbox.text = alias
+        Utils.find_element_wait(self.driver, Locators.ImpersonatePage.first_result).click()
+        self.select_retailer_button.click()
+        self.impersonate_button.click()
 
 

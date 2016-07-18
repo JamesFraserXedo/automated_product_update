@@ -8,13 +8,14 @@ from model.admin_page import AdminPage
 from model.edit_product_page import EditProductPage
 from model.header import Header
 from model.impersonate_page import ImpersonatePage
-from model.live_product_list_page import LiveProductListPage
+from model.live_product_list_page import LiveProductsListPage
 from model.login_page import LoginPage
+
 from product_types import ProductTypes
 from StatusObject import StatusObject
 from credentials import Credentials
 from codec import *
-from utils import Utils
+import Utils
 
 
 class BaseUpdater:
@@ -25,11 +26,9 @@ class BaseUpdater:
         self.admin_page = AdminPage(self.driver)
         self.header = Header(self.driver)
         self.impersonate_page = ImpersonatePage(self.driver)
-        self.live_product_list_page = LiveProductListPage(self.driver)
-
-        self.customer_code = customer_code
-
+        self.live_product_list_page = LiveProductsListPage(self.driver)
         self.product_page = EditProductPage(self.driver)
+        self.customer_code = customer_code
 
     def impersonate(self):
         self.driver.get(Credentials.url)
@@ -40,7 +39,7 @@ class BaseUpdater:
             password=Credentials.password
         )
 
-        self.admin_page.get_impersonate_button().click()
+        self.admin_page.impersonate_button.click()
 
         self.impersonate_page.impersonate(self.customer_code)
 
@@ -48,11 +47,11 @@ class BaseUpdater:
         status = OK
         messages = []
 
-        self.header.get_live_products_button().click()
+        self.header.live_products_button.click()
 
         self.live_product_list_page.filter_by_code(product.style)
 
-        num_results = self.live_product_list_page.get_number_of_results(product.style)
+        num_results = self.live_product_list_page.number_of_results(product.style)
 
         if num_results == 0:
             return self.handle_creation(product, messages)
@@ -62,7 +61,7 @@ class BaseUpdater:
             status = ERROR
             return StatusObject(status, messages)
 
-        self.live_product_list_page.get_edit_product_button(product.style).click()
+        self.live_product_list_page.edit_product_button(product.style).click()
 
         if self.product_page.code_inputbox.text != product.style:
             messages.append("Attempted to update code {} , but accessed {} instead".format(product.style, self.product_page.code_inputbox.text))
@@ -85,10 +84,14 @@ class BaseUpdater:
             self.product_page.price_inputbox.send_keys(str(round(product.uk_wholesale_price, 2)))
             messages.append("Updated price from £{} to £{}".format(round(current_uk_wholesale_price, 2), round(product.uk_wholesale_price, 2)))
 
-        current_consumer_marketing_info = self.product_page.consumer_marketing_info_inputbox.text.replace('\r', ' ').replace('\n', ' ')
-        current_retailer_marketing_info = self.product_page.retailer_marketing_info_inputbox.text.replace('\r', ' ').replace('\n', ' ')
+        # current_consumer_marketing_info = self.product_page.consumer_marketing_info_inputbox.text.replace('\r', ' ').replace('\n', ' ')
+        # current_retailer_marketing_info = self.product_page.retailer_marketing_info_inputbox.text.replace('\r', ' ').replace('\n', ' ')
 
         if product.marketing_info:
+            self.product_page.append_consumer_marketing_info(product.marketing_info)
+            self.product_page.append_retailer_marketing_info(product.marketing_info)
+
+            """
             if current_consumer_marketing_info == current_retailer_marketing_info == '':
                 status = UPDATED
                 self.product_page.consumer_marketing_info_inputbox.send_keys(product.marketing_info)
@@ -105,6 +108,7 @@ class BaseUpdater:
                 messages.append("Consumer and Retailer marketing already contain data:")
                 messages.append("\t{}".format(current_consumer_marketing_info.replace('\r', ' ').replace('\n', ' ')))
                 status = WARNING
+            """
 
         current_colours = self.product_page.get_current_colours()
         product_colours = [x.strip() for x in product.colours_available.split(',')]
@@ -128,10 +132,7 @@ class BaseUpdater:
         return StatusObject(status, messages)
 
     def handle_creation(self, product, messages):
-        path_to_image = self.get_path_to_image(product.style)[0]
-        print(path_to_image)
-
-        self.header.get_add_product_button().click()
+        self.header.add_product_button.click()
 
         brand_select = Select(Utils.find_element_by_id_wait(self.driver, "BrandUnid"))
         brand_select.select_by_visible_text('Mori Lee')
@@ -154,6 +155,7 @@ class BaseUpdater:
 
         self.product_page.collection_select.selected = product.collection
 
+        path_to_image = self.get_path_to_image(product.style)[0]
         self.product_page.image_uploader.text = path_to_image
 
         # TODO
@@ -168,14 +170,15 @@ class BaseUpdater:
         self.product_page.update_colours(product.colours_available)
 
         if product.marketing_info:
-            self.product_page.consumer_marketing_info_inputbox.text = product.marketing_info
-            self.product_page.retailer_marketing_info_inputbox.text = product.marketing_info
+            self.product_page.append_consumer_marketing_info(product.marketing_info)
+            self.product_page.append_retailer_marketing_info(product.marketing_info)
 
-            if product.marketing_info.contains('Available in 3 lengths - standard 61", 58" & 55"'):
+            if 'Available in 3 lengths - standard 61", 58" & 55"' in product.marketing_info:
                 self.product_page.expand_all_options_button.click()
+                time.sleep(1)
                 self.product_page.special_length_option_button.click()
 
-        time.sleep(10)
+        time.sleep(30)
         status = NEEDS_CREATED
         return StatusObject(status, messages)
         quit()

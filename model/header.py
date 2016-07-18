@@ -1,14 +1,28 @@
-from utils import Utils
+from model.locators import Locators
+from model.object.base_page_element import *
+from model.object.base_page_object import BasePageObject
 
 
-class Header:
+class AddProductButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.Header.add_product_button
+        )
 
+
+class LiveProductsButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.Header.live_products_button
+        )
+
+
+class Header(BasePageObject):
     def __init__(self, driver):
         self.driver = driver
+        self.add_product_button = AddProductButton(driver)
+        self.live_products_button = LiveProductsButton(driver)
 
-    def get_add_product_button(self):
-        return Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Add Product']")
-
-    def get_live_products_button(self):
-        return Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Live Products']")
 
