@@ -1,6 +1,6 @@
 import Tools
 from model.locators import Locators
-from model.object.base_page_element import *
+from model.object.elements import *
 from model.object.base_page_object import BasePageObject
 import Utils
 
@@ -117,6 +117,14 @@ class SpecialLengthOptionButton(Button):
         )
 
 
+class EditColoursButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.ProductForm.edit_colours_button
+        )
+
+
 class EditProductPage(BasePageObject):
     def __init__(self, driver):
         self.driver = driver
@@ -134,6 +142,7 @@ class EditProductPage(BasePageObject):
         self.start_date_inputbox = StartDateInputbox(driver)
         self.expand_all_options_button = ExpandAllOptionsButton(driver)
         self.special_length_option_button = SpecialLengthOptionButton(driver)
+        self.edit_colours_button = EditColoursButton(driver)
 
     def set_size_range(self, lower, upper):
         required_size = '{0}-{1} (Size: {0} -> {1})'.format(lower, upper)
@@ -143,38 +152,21 @@ class EditProductPage(BasePageObject):
 
         self.size_range_select.selected = required_size
 
-    def get_current_colours(self):
-        colour_elements = self.driver.find_elements_by_xpath("//span[@class='pgtoListItem']")
+    @property
+    def current_colours(self):
+        colour_elements = Utils.find_element_wait(self.driver, Locators.ProductForm.selected_colours)
         colours = []
         for element in colour_elements:
             colours.append(element.text)
         return colours
 
-    def update_colours(self, colours):
-        messages = []
-        edit_colours_button = Utils.find_element_by_id_wait(self.driver, "EditColours")
-        edit_colours_button.click()
-
-        Utils.find_element_by_id_wait(self.driver, "DeselectAll").click()
-
-        if type(colours) is str:
-            new_colours = [x.strip() for x in colours.split(',')]
-            colours = new_colours
-
-        for colour in colours:
-            try:
-                colour_select = Select(Utils.find_element_by_id_wait(self.driver, "AvailableIds"))
-                colour_select.deselect_all()
-                colour_select.select_by_visible_text(colour)
-
-                select_highlighted_button = Utils.find_element_by_id_wait(self.driver, "SelectHighlighted")
-                select_highlighted_button.click()
-            except:
-                messages.append("Could not add colour {}".format(colour))
-
-        update_close_button = Utils.find_element_by_id_wait(self.driver, "SaveDialog")
-        update_close_button.click()
-        return messages
+    @property
+    def current_colour_set(self):
+        colour_elements = Utils.find_element_wait(self.driver, Locators.ProductForm.selected_colours)
+        colours = []
+        for element in colour_elements:
+            colours.append(element.text.replace('*', '').split('(')[0].strip())
+        return colours
 
     @property
     def consumer_marketing_info(self):
@@ -191,7 +183,6 @@ class EditProductPage(BasePageObject):
             if item not in contents:
                 contents.append(item)
 
-        print(Tools.list_to_string(contents))
         self.consumer_marketing_info_inputbox.text = Tools.list_to_string(contents)
 
 
@@ -210,6 +201,4 @@ class EditProductPage(BasePageObject):
             if item not in contents:
                 contents.append(item)
 
-        print(Tools.list_to_string(contents))
         self.retailer_marketing_info_inputbox.text = Tools.list_to_string(contents)
-        print(self.retailer_marketing_info_inputbox.text)

@@ -1,5 +1,5 @@
 from model.locators import Locators
-from model.object.base_page_element import *
+from model.object.elements import *
 from model.object.base_page_object import BasePageObject
 import Utils
 
@@ -40,7 +40,7 @@ class LiveProductsListPage(BasePageObject):
         code_filter_button.click()
 
         filter_inputbox = Utils.find_element_by_xpath_wait(self.driver, "//input[@class='k-textbox']")
-        filter_inputbox.text =code
+        filter_inputbox.send_keys(code)
 
         activate_filter_button = Utils.find_element_by_xpath_wait(self.driver, "//button[@type='submit']")
         activate_filter_button.click()

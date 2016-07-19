@@ -59,3 +59,22 @@ class Selector(BasePageElement):
     def selected(self, value):
         return self.selector.select_by_visible_text(value)
 
+    def select_by_partial_text(self, text):
+        return self.element.find_element_by_xpath("//option[contains(text(), '{}')]".format(text)).click()
+
+
+class Checkbox(BasePageElement):
+    def __init__(self, driver, locator):
+        super().__init__(driver, locator)
+
+    @property
+    def selected(self):
+        return self.element.is_selected()
+
+    def select(self):
+        if not self.selected:
+            self.element.click()
+
+    def deselect(self):
+        if self.selected:
+            self.element.click()

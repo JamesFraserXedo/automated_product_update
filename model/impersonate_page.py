@@ -1,5 +1,5 @@
 from model.locators import Locators
-from model.object.base_page_element import *
+from model.object.elements import *
 from model.object.base_page_object import BasePageObject
 import Utils
 

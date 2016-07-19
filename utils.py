@@ -5,7 +5,8 @@ from selenium.common.exceptions import *
 
 
 def scroll_to_element(driver, element):
-    driver.execute_script("return arguments[0].scrollIntoView();", element)
+    # driver.execute_script("return arguments[0].scrollIntoView();", element)
+    driver.execute_script("window.scrollTo(" + str(element.location['x']) + "," + str(element.location['y'] - 400) + ");")
 
 
 def find_element_by_xpath_wait(driver, loc):

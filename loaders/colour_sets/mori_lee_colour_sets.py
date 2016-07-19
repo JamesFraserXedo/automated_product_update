@@ -1,0 +1,7 @@
+SOLID_LACE = 'Solid Lace'
+SATIN_AND_CHIFFON = 'Satin & Chiffon'
+JERSEY = 'Jersey'
+TULLE = 'Tulle'
+BEADED_CHIFFON_AND_BEADED_SATIN = 'Beaded Chiffon/Beaded Satin'
+SEQUIN_MESH = 'Sequin Mesh'
+LUXE_CHIFFON = 'Luxe Chiffon'
