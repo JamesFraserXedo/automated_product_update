@@ -2,7 +2,6 @@ import os
 import time
 
 from codec import *
-from html_builder import HtmlBuilder
 from locking import get_key, unlock
 
 
@@ -10,12 +9,11 @@ class Logger:
 
     def __init__(self, name):
         base_dir = os.path.dirname(__file__)
-        self.html_file = os.path.join(base_dir, "reports/{}_{}.html".format(name, time.strftime('%Y-%m-%d_%H-%M-%S')))
         self.file_location = os.path.join(base_dir, "logs/{}_{}.log".format(name, time.strftime('%Y-%m-%d_%H-%M-%S')))
 
         self.tracker = {
             ERROR: [],
-            NEEDS_CREATED: [],
+            CREATED: [],
             OK: [],
             UPDATED: [],
             WARNING: []
@@ -37,7 +35,3 @@ class Logger:
                 "messages": messages
             }
         )
-
-    def dump_to_html(self):
-        builder = HtmlBuilder(self.tracker, self.html_file)
-        builder.build()

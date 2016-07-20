@@ -77,6 +77,14 @@ class SaveButton(Button):
         )
 
 
+class CancelButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.ProductForm.cancel_button
+        )
+
+
 class LeadTimeInputbox(Inputbox):
     def __init__(self, driver):
         super().__init__(
@@ -109,7 +117,7 @@ class ExpandAllOptionsButton(Button):
         )
 
 
-class SpecialLengthOptionButton(Button):
+class SpecialLengthOptionCheckbox(Checkbox):
     def __init__(self, driver):
         super().__init__(
             driver=driver,
@@ -137,11 +145,12 @@ class EditProductPage(BasePageObject):
         self.consumer_marketing_info_inputbox = ConsumerMarketingInfoInputbox(driver)
         self.retailer_marketing_info_inputbox = RetailerMarketingInfoInputbox(driver)
         self.save_button = SaveButton(driver)
+        self.cancel_button = CancelButton(driver)
         self.lead_time_inputbox = LeadTimeInputbox(driver)
         self.rrp_inputbox = RrpInputbox(driver)
         self.start_date_inputbox = StartDateInputbox(driver)
         self.expand_all_options_button = ExpandAllOptionsButton(driver)
-        self.special_length_option_button = SpecialLengthOptionButton(driver)
+        self.special_length_option_checkbox = SpecialLengthOptionCheckbox(driver)
         self.edit_colours_button = EditColoursButton(driver)
 
     def set_size_range(self, lower, upper):
@@ -177,13 +186,18 @@ class EditProductPage(BasePageObject):
         text = Tools.new_line_per_sentence(text)
         text_items = Tools.split_on_new_line(text)
 
-        contents = self.consumer_marketing_info
+        old_contents = self.consumer_marketing_info
+        new_contents = self.consumer_marketing_info
 
         for item in text_items:
-            if item not in contents:
-                contents.append(item)
+            if item not in new_contents:
+                new_contents.append(item)
 
-        self.consumer_marketing_info_inputbox.text = Tools.list_to_string(contents)
+        if old_contents != new_contents:
+            self.consumer_marketing_info_inputbox.text = Tools.list_to_string(new_contents)
+
+            self.status_object.old_comments = old_contents
+            self.status_object.new_comments = new_contents
 
 
     @property

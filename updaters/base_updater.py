@@ -48,18 +48,30 @@ class BaseUpdater:
 
     def update_product(self, product):
         self.messages = []
-        self.status_object = StatusObject()
+        self.status_object = StatusObject(code=product.style)
 
-        self.go_to_product(product)
-        self.check_code(product)
-        self.check_collection(product)
-        self.check_size_range(product)
-        self.check_price(product)
-        self.check_rrp(product)
-        self.check_marketing_info(product)
-        self.check_colours(product)
+        num_results = self.num_of_products(product)
 
-        self.product_page.save_button.click()
+        if num_results == 0:
+            self.handle_creation(product)
+        elif num_results > 1:
+            self.status_object.add_message("More than one product with this code ({}) found".format(product.style))
+            self.status_object.status = ERROR
+        else:
+            self.live_product_list_page.edit_product_button(product.style).click()
+
+            self.check_code(product)
+            self.check_collection(product)
+            self.check_size_range(product)
+            self.check_price(product)
+            self.check_rrp(product)
+            self.check_marketing_info(product)
+            self.check_colours(product)
+
+            if self.status_object.status == ERROR:
+                self.product_page.cancel_button.click()
+            else:
+                self.product_page.save_button.click()
 
         return self.status_object
 
@@ -75,7 +87,7 @@ class BaseUpdater:
         elif product.product_type == ProductTypes.MoriLee.WEDDING_DRESS:
             product_select.select_by_visible_text('Wedding Dress')
         else:
-            self.status_object.status = NEEDS_CREATED
+            self.status_object.status = CREATED
             self.status_object.add_message("Could not select product type {}".format(product.product_type))
             return self.status_object
 
@@ -83,28 +95,42 @@ class BaseUpdater:
         create_product_button.click()
 
         self.product_page.code_inputbox.text = product.style
+
         self.product_page.name_inputbox.text = product.style
+        self.status_object.new_name = self.product_page.name_inputbox.text
 
         self.product_page.collection_select.selected = product.collection
+        self.status_object.new_collection = self.product_page.collection_select.selected
 
-        path_to_image = get_path_to_image(product.style)[0]
-        self.product_page.image_uploader.text = path_to_image
-
-        # TODO
-        # self.product_page.lead_time_inputbox
+        path_to_image, all_images = get_path_to_image(product.style)
+        if path_to_image:
+            self.product_page.image_uploader.text = path_to_image
+            self.status_object.new_image = self.product_page.image_uploader.text
+            self.status_object.all_images = all_images
+        else:
+            self.status_object.new_image = None
+            self.status_object.all_images = None
 
         self.product_page.price_inputbox.text = str(round(product.uk_wholesale_price, 0))
+        self.status_object.new_price = self.product_page.price_inputbox.text
 
-        # TODO
         self.product_page.rrp_inputbox.text = str(round(product.uk_wholesale_price * RRP_MULTIPLIER, 0))
+        self.status_object.new_rrp = self.product_page.rrp_inputbox.text
 
         self.product_page.set_size_range(product.size_lower, product.size_upper)
         if product.colours_available:
             self.product_page.edit_colours_button.click()
-            self.colour_palette.update_colours(product.colours_available)
+            messages = self.colour_palette.update_colours(product.colours_available)
+            self.status_object.new_colours = self.product_page.current_colours
         elif product.colour_set:
             self.product_page.edit_colours_button.click()
-            self.colour_palette.update_colour_set(product.colour_set)
+            messages = self.colour_palette.update_colour_set(product.colour_set)
+            self.status_object.new_colours = self.product_page.current_colour_set
+
+        if len(messages) > 0:
+            self.status_object.status = ERROR
+            self.status_object.add_message(messages)
+
         if product.marketing_info:
             self.product_page.append_consumer_marketing_info(product.marketing_info)
             self.product_page.append_retailer_marketing_info(product.marketing_info)
@@ -112,76 +138,92 @@ class BaseUpdater:
             if 'Available in 3 lengths - standard 61", 58" & 55"' in product.marketing_info:
                 self.product_page.expand_all_options_button.click()
                 time.sleep(1)
-                self.product_page.special_length_option_button.click()
+                self.product_page.special_length_option_checkbox.select()
+                self.status_object.new_features = "Special Lengths"
 
-        self.status_object.status = NEEDS_CREATED
+        self.status_object.status = CREATED
         return self.status_object
 
-        # self.product_page.save_button.click()
+        if self.status_object.status == ERROR:
+            self.product_page.cancel_button.click()
+        else:
+            self.product_page.save_button.click()
 
     def teardown(self):
         self.driver.quit()
         pass
 
-    def go_to_product(self, product):
+    def num_of_products(self, product):
         self.header.live_products_button.click()
-
         self.live_product_list_page.filter_by_code(product.style)
-
-        num_results = self.live_product_list_page.number_of_results(product.style)
-
-        if num_results == 0:
-            return self.handle_creation(product)
-
-        if num_results > 1:
-            self.status_object.add_message("More than one product with this code ({}) found".format(product.style))
-            self.status_object.status = ERROR
-            return self.status_object
-
-        self.live_product_list_page.edit_product_button(product.style).click()
+        return self.live_product_list_page.number_of_results(product.style)
 
     def check_code(self, product):
+        if self.status_object.status == ERROR:
+            return
         if self.product_page.code_inputbox.text != product.style:
             self.status_object.add_message("Attempted to update code {} , but accessed {} instead".format(product.style,
                                                                                            self.product_page.code_inputbox.text))
             self.status_object.status = ERROR
-            return self.status_object
 
     def check_collection(self, product):
+        if self.status_object.status == ERROR:
+            return
         if self.product_page.collection_select.selected != product.collection:
             self.status_object.add_message("Expected collection '{}' , but found '{}' instead".format(product.collection,
                                                                                        self.product_page.collection_select.selected))
             self.status_object.status = ERROR
-            return self.status_object
 
     def check_size_range(self, product):
+        if self.status_object.status == ERROR:
+            return
         if product.uk_size_range.replace(' ', '') not in self.product_page.size_range_select.options:
             self.status_object.add_message("Expected size range {} , but found {} instead".format(product.uk_size_range,
                                                                                    self.product_page.size_range_select.selected))
             self.status_object.status = ERROR
-            return self.status_object
 
     def check_price(self, product):
+        if self.status_object.status == ERROR:
+            return
         current_uk_wholesale_price = self.product_page.price_inputbox.text
         if current_uk_wholesale_price != product.uk_wholesale_price:
             self.status_object.status = UPDATED
             self.product_page.price_inputbox.send_keys(str(round(product.uk_wholesale_price, 0)))
-            self.status_object.add_message(
-                "Updated price from £{} to £{}".format(
-                    current_uk_wholesale_price,
-                    product.uk_wholesale_price
-                )
-            )
+            self.status_object.old_price = current_uk_wholesale_price
+            self.status_object.new_price = product.uk_wholesale_price
 
     def check_rrp(self, product):
+        if self.status_object.status == ERROR:
+            return
+
         current_rrp = self.product_page.rrp_inputbox.text
+        expected_rrp = str(round(product.uk_wholesale_price * RRP_MULTIPLIER, 0))
+
+        if current_rrp != expected_rrp:
+            self.status_object.status = UPDATED
+            self.product_page.rrp_inputbox.text = expected_rrp
+
+            self.status_object.old_rrp = current_rrp
+            self.status_object.new_rrp = expected_rrp
 
     def check_marketing_info(self, product):
+        if self.status_object.status == ERROR:
+            return
         if product.marketing_info:
             self.product_page.append_consumer_marketing_info(product.marketing_info)
             self.product_page.append_retailer_marketing_info(product.marketing_info)
 
+            if 'Available in 3 lengths - standard 61", 58" & 55"' in product.marketing_info:
+                self.product_page.expand_all_options_button.click()
+                time.sleep(1)
+                if not self.product_page.special_length_option_checkbox.selected:
+                    self.product_page.special_length_option_checkbox.select()
+                    self.status_object.old_features = "None"
+                    self.status_object.new_features = "Special Lengths"
+
     def check_colours(self, product):
+        if self.status_object.status == ERROR:
+            return
         if product.colours_available:
             current_colours = self.product_page.current_colours
             product_colours = [x.strip() for x in product.colours_available.split(',')]
@@ -198,7 +240,8 @@ class BaseUpdater:
                 old_colours = current_colours
                 current_colours = self.product_page.current_colours
                 if old_colours != current_colours:
-                    self.status_object.add_message("Updated colours from {} to {}".format(old_colours, current_colours))
+                    self.status_object.old_colours = old_colours
+                    self.status_object.new_colours = current_colours
 
         elif product.colour_set:
             current_colour_set = self.product_page.current_colour_set
@@ -216,4 +259,5 @@ class BaseUpdater:
                 old_colour_set = current_colour_set
                 current_colour_set = self.product_page.current_colour_set
                 if old_colour_set != current_colour_set:
-                    self.status_object.add_message("Updated colour set from {} to {}".format(old_colour_set, current_colour_set))
+                    self.status_object.old_colours = old_colour_set
+                    self.status_object.new_colours = current_colour_set

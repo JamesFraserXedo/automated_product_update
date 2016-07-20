@@ -1,5 +1,6 @@
 import imghdr
 import os
+import re
 import struct
 
 
@@ -56,14 +57,30 @@ def is_portrait(fname):
 def get_path_to_image(code):
     base_dir = 'X:\Xedo Support\Bridal Designers Info\Mori Lee'
 
+    p = re.compile('^{}\D'.format(code))
+
     preferred = None
     all_images = []
     for root, dirs, files in os.walk(base_dir):
         for file in files:
-            if file.startswith("{}-".format(code)):
-                all_images.append(os.path.join(root, file))
-                if not preferred and is_portrait(os.path.join(root, file)):
-                    preferred = os.path.join(root, file)
+            # if file.startswith("{}-".format(code)):
+            if(p.match(file)):
+                filename = os.path.join(root, file)
+                all_images.append(filename)
+
+                if is_portrait(filename):
+                    if not preferred:
+                        preferred = filename
+                    else:
+                        size_pref = get_image_size(preferred)
+                        area_preferred = size_pref[0] * size_pref[1]
+
+                        size_new = get_image_size(filename)
+                        area_new = size_new[0] * size_new[1]
+
+                        if area_new > area_preferred:
+                            preferred = filename
+
     if not preferred and len(all_images) > 0:
         preferred = all_images[0]
     return preferred, all_images

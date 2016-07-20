@@ -13,6 +13,7 @@ class Locators:
         consumer_marketing_info_inputbox = (By.ID, 'StagedProduct_ConsumerMarketingInfo')
         retailer_marketing_info_inputbox = (By.ID, 'StagedProduct_MarketingInfo')
         save_button = (By.ID, 'SaveProduct')
+        cancel_button = (By.XPATH, "//a[@title='Cancel']")
         leadtime_inputbox = (By.XPATH, "//input[contains(@id, 'LeadTime')]")
         rrp_inputbox = (By.XPATH, "//input[contains(@id, 'Rrp')]")
         start_date_inputbox = (By.XPATH, "//input[contains(@id, 'StartDatepicker')]")

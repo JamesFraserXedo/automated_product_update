@@ -7,11 +7,12 @@ from updaters.base_updater import BaseUpdater
 
 
 class UpdateHandler(threading.Thread):
-    def __init__(self, items, customer_code, logger):
+    def __init__(self, items, customer_code, logger, html_builder):
         threading.Thread.__init__(self)
         self.items = items
         self.customer_code = customer_code
         self.logger = logger
+        self.html_builder = html_builder
 
     def run(self):
         updater = BaseUpdater(self.customer_code)
@@ -25,6 +26,7 @@ class UpdateHandler(threading.Thread):
                 status_message = StatusObject(ERROR, [str(e), ''.join(traceback.format_exc())])
 
             self.logger.log(product=item, status=status_message.status, messages=status_message.messages)
+            self.html_builder.status_objects.append(status_message)
             item = self.get_next_item()
 
         updater.teardown()

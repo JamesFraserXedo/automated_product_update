@@ -1,20 +1,5 @@
 import unittest
-
 from Tools import *
-
-"""
-def standardise_new_lines(text):
-    return text.replace("\r\n", "\n").replace("\r", "\n")
-
-def split_on_new_line(text):
-    return [i.strip() for i in standardise_new_lines(text).split("\n")]
-
-def list_to_string(items):
-    result = ''
-    for item in items:
-        result += '{}\r\n'.format(item)
-    return result
-"""
 
 
 class TestTools(unittest.TestCase):
