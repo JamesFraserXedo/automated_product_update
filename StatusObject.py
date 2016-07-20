@@ -23,8 +23,19 @@ class StatusObject:
         self.new_colours = None
         self.old_features = None
         self.new_features = None
-        self.old_comments = None
-        self.new_comments = None
+        self.old_consumer_comments = None
+        self.new_consumer_comments = None
+        self.old_retailer_comments = None
+        self.new_retailer_comments = None
+
+        self.colours_required = []
+        self.colour_sets_required = []
 
     def add_message(self, message):
         self.messages.append(message)
+
+    def requires_colour(self, colour):
+        self.colours_required.append(colour)
+
+    def requires_colour_set(self, colour_set):
+        self.colour_sets_required.append(colour_set)

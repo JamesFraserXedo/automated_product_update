@@ -8,6 +8,8 @@ from codec import *
 class HtmlBuilder:
 
     def __init__(self, collection):
+        self.required_colour_sets = []
+        self.required_colours = []
         self.building = None
         self.status_objects = []
         base_dir = os.path.dirname(__file__)
@@ -34,8 +36,28 @@ class HtmlBuilder:
 
                     for record in records:
                         self.add_record(record)
+                        if key == ERROR:
+                            self.required_colours += record.colours_required
+                            self.required_colour_sets += record.colour_sets_required
 
                     self.end_table()
+
+            if len(self.required_colours) > 0:
+                print("<h2>Colours Needing Added</h2>", file=self.building)
+                print("<ul>", file=self.building)
+                print(type(self.required_colours), self.required_colours)
+                colours = list(set(self.required_colours))
+                for colour in colours:
+                    print("<li>{}</li>".format(colour), file=self.building)
+                print("</ul>", file=self.building)
+
+            if len(self.required_colour_sets) > 0:
+                print("<h2>Colour Sets Needing Added</h2>", file=self.building)
+                print("<ul>", file=self.building)
+                colour_sets = list(set(self.required_colour_sets))
+                for colour_set in colour_sets:
+                    print("<li>{}</li>".format(colour_set), file=self.building)
+                print("</ul>", file=self.building)
 
             print("</html>", file=self.building)
         finally:
@@ -74,7 +96,8 @@ class HtmlBuilder:
                 'Price',
                 'RRP',
                 'Colours',
-                'Comments',
+                'Retailer Comments',
+                'Consumer Comments',
                 'Features'
             ]
 
@@ -118,7 +141,7 @@ class HtmlBuilder:
                 print('<li>{}</li>'.format(colour), file=self.building)
             print('</ul></td>', file=self.building)
 
-            print('<td>{}</td>'.format(record.new_comments), file=self.building)
+            print('<td>{}</td>'.format(record.new_retailer_comments), file=self.building)
             print('<td>{}</td>'.format(record.new_features), file=self.building)
 
         elif key == UPDATED:
@@ -138,8 +161,13 @@ class HtmlBuilder:
             print('</td>', file=self.building)
 
             print('<td>', file=self.building)
-            if record.old_comments or record.new_comments:
-                print('From: {}<br>To: {}'.format(record.old_comments, record.new_comments), file=self.building)
+            if record.old_retailer_comments or record.new_retailer_comments:
+                print('From: {}<br>To: {}'.format(record.old_retailer_comments, record.new_retailer_comments), file=self.building)
+            print('</td>', file=self.building)
+
+            print('<td>', file=self.building)
+            if record.old_consumer_comments or record.new_consumer_comments:
+                print('From: {}<br>To: {}'.format(record.old_consumer_comments, record.new_consumer_comments), file=self.building)
             print('</td>', file=self.building)
 
             print('<td>', file=self.building)

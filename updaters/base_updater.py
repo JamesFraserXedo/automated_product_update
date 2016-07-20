@@ -142,7 +142,6 @@ class BaseUpdater:
                 self.status_object.new_features = "Special Lengths"
 
         self.status_object.status = CREATED
-        return self.status_object
 
         if self.status_object.status == ERROR:
             self.product_page.cancel_button.click()
@@ -210,8 +209,8 @@ class BaseUpdater:
         if self.status_object.status == ERROR:
             return
         if product.marketing_info:
-            self.product_page.append_consumer_marketing_info(product.marketing_info)
-            self.product_page.append_retailer_marketing_info(product.marketing_info)
+            self.product_page.append_consumer_marketing_info(product.marketing_info, self.status_object)
+            self.product_page.append_retailer_marketing_info(product.marketing_info, self.status_object)
 
             if 'Available in 3 lengths - standard 61", 58" & 55"' in product.marketing_info:
                 self.product_page.expand_all_options_button.click()

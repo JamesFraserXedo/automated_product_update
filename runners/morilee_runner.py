@@ -15,12 +15,12 @@ class MoriLeeRunner(BaseRunner):
     customer_code = 'XMORILEE'
 
     sheets_to_update = [
-        # {
-        #     COLLECTION: Collections.MoriLee.MORI_LEE_BRIDAL,
-        #     PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
-        #     LOADER: MoriLeeLoader(),
-        #     SHEET_NAME: SheetNames.MoriLee.MAIN
-        # },
+        {
+            COLLECTION: Collections.MoriLee.MORI_LEE_BRIDAL,
+            PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
+            LOADER: MoriLeeLoader(),
+            SHEET_NAME: SheetNames.MoriLee.MAIN
+        },
         # {
         #     COLLECTION: Collections.MoriLee.BLU_BRIDAL,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
@@ -58,26 +58,25 @@ class MoriLeeRunner(BaseRunner):
         #     SHEET_NAME: SheetNames.MoriLee.AFFAIRS
         # },
 
-
         # { # This needs checked for the Vizcaya / Valencia weirdness
         #     COLLECTION: Collections.MoriLee.Vizcaya,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
         #     LOADER: VizcayaLoader(),
         #     SHEET_NAME: SheetNames.MoriLee.Vizcaya
         # },
+
         # {
         #     COLLECTION: Collections.MoriLee.MORI_LEE_BRIDESMAIDS,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
         #     LOADER: ColourSetLoader(),
         #     SHEET_NAME: SheetNames.MoriLee.ABM
         # },
-
-        {
-            COLLECTION: Collections.MoriLee.ANGELINA_FACCENDA,
-            PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
-            LOADER: ColourSetLoader(),
-            SHEET_NAME: SheetNames.MoriLee.AF_ABM
-        },
+        # {
+        #     COLLECTION: Collections.MoriLee.ANGELINA_FACCENDA,
+        #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
+        #     LOADER: ColourSetLoader(),
+        #     SHEET_NAME: SheetNames.MoriLee.AF_ABM
+        # },
 
         """
         Ignore Sticks and Paparazzi Cont

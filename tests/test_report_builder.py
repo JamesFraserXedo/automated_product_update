@@ -33,8 +33,13 @@ class TestTools(unittest.TestCase):
 
         html_builder.status_objects.append(StatusObject("3001", ERROR, ['More than one product with this code (3001) found']))
         html_builder.status_objects.append(StatusObject("3002", ERROR, ['Could not select product type wedding dress']))
-        html_builder.status_objects.append(StatusObject("3003", ERROR, ['Could not add colour Turquoise']))
-        html_builder.status_objects.append(StatusObject("3004", ERROR, ['Attempted to update', 'Could not find']))
+        s1 = StatusObject("3003", ERROR, ['Could not add colour Turquoise'])
+        s1.requires_colour('Turquoise')
+        html_builder.status_objects.append(s1)
+        s2 = StatusObject("3004", ERROR, ['Could not add colour set Chiffon'])
+        s2.requires_colour_set('Chiffon')
+        html_builder.status_objects.append(s2)
+        html_builder.status_objects.append(StatusObject("3005", ERROR, ['Attempted to update', 'Could not find']))
 
         html_builder.build()
 

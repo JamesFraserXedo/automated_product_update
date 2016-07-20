@@ -28,10 +28,3 @@ class Logger:
                 print(("\t{}".format(message)), file=logfile)
             print("", file=logfile)
         unlock()
-
-        self.tracker[status].append(
-            {
-                "product": product,
-                "messages": messages
-            }
-        )

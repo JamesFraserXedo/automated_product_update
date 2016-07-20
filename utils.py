@@ -53,3 +53,9 @@ def find_element_wait(driver, by, timeout=30):
     element = wait.until(expected_conditions.element_to_be_clickable(by))
     scroll_to_element(driver, element)
     return element
+
+
+def find_elements_by(driver, by):
+    if by[0] == By.XPATH:
+        return driver.find_elements_by_xpath(by[1])
+    raise ValueError("Could not use other locator")

@@ -163,7 +163,7 @@ class EditProductPage(BasePageObject):
 
     @property
     def current_colours(self):
-        colour_elements = Utils.find_element_wait(self.driver, Locators.ProductForm.selected_colours)
+        colour_elements = Utils.find_elements_by(self.driver, Locators.ProductForm.selected_colours)
         colours = []
         for element in colour_elements:
             colours.append(element.text)
@@ -171,7 +171,7 @@ class EditProductPage(BasePageObject):
 
     @property
     def current_colour_set(self):
-        colour_elements = Utils.find_element_wait(self.driver, Locators.ProductForm.selected_colours)
+        colour_elements = Utils.find_elements_by(self.driver, Locators.ProductForm.selected_colours)
         colours = []
         for element in colour_elements:
             colours.append(element.text.replace('*', '').split('(')[0].strip())
@@ -182,7 +182,7 @@ class EditProductPage(BasePageObject):
         contents = self.consumer_marketing_info_inputbox.text
         return Tools.split_on_new_line(contents)
 
-    def append_consumer_marketing_info(self, text):
+    def append_consumer_marketing_info(self, text, status_object):
         text = Tools.new_line_per_sentence(text)
         text_items = Tools.split_on_new_line(text)
 
@@ -196,8 +196,8 @@ class EditProductPage(BasePageObject):
         if old_contents != new_contents:
             self.consumer_marketing_info_inputbox.text = Tools.list_to_string(new_contents)
 
-            self.status_object.old_comments = old_contents
-            self.status_object.new_comments = new_contents
+            status_object.old_consumer_comments = old_contents
+            status_object.new_consumer_comments = new_contents
 
 
     @property
@@ -205,14 +205,19 @@ class EditProductPage(BasePageObject):
         contents = self.retailer_marketing_info_inputbox.text
         return Tools.split_on_new_line(contents)
 
-    def append_retailer_marketing_info(self, text):
+    def append_retailer_marketing_info(self, text, status_object):
         text = Tools.new_line_per_sentence(text)
         text_items = Tools.split_on_new_line(text)
 
-        contents = self.retailer_marketing_info
+        old_contents = self.retailer_marketing_info
+        new_contents = self.retailer_marketing_info
 
         for item in text_items:
-            if item not in contents:
-                contents.append(item)
+            if item not in new_contents:
+                new_contents.append(item)
 
-        self.retailer_marketing_info_inputbox.text = Tools.list_to_string(contents)
+        if old_contents != new_contents:
+            self.retailer_marketing_info_inputbox.text = Tools.list_to_string(new_contents)
+
+            status_object.old_retail_comments = old_contents
+            status_object.new_retail_comments = new_contents
