@@ -1,3 +1,6 @@
+import os
+
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
@@ -9,10 +12,10 @@ def scroll_to_element(driver, element):
     driver.execute_script("window.scrollTo(" + str(element.location['x']) + "," + str(element.location['y'] - 400) + ");")
 
 
-def find_element_by_xpath_wait(driver, loc):
+def find_element_by_xpath_wait(driver, loc, timeout=30):
     wait = WebDriverWait(
         driver,
-        30,
+        timeout,
         poll_frequency=1,
         ignored_exceptions=[
             ElementNotVisibleException,
@@ -58,4 +61,25 @@ def find_element_wait(driver, by, timeout=30):
 def find_elements_by(driver, by):
     if by[0] == By.XPATH:
         return driver.find_elements_by_xpath(by[1])
+    if by[0] == By.ID:
+        return driver.find_elements_by_css_selector("[id='{}']".format(by[1]))
+
     raise ValueError("Could not use other locator")
+
+
+def element_exists(driver, by):
+    elements = find_elements_by(driver, by)
+    if len(elements) > 0:
+        return elements[0].is_displayed()
+    return False
+
+
+def screenshot(driver, id=None):
+    base_dir = os.path.dirname(__file__)
+    if id:
+        prefix = id + '_'
+    else:
+        prefix = ''
+    name = os.path.join(base_dir, "screenshots/{}{}.png".format(prefix, time.strftime('%Y-%m-%d_%H-%M-%S')))
+    driver.save_screenshot(name)
+    return name

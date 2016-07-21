@@ -37,7 +37,7 @@ class LoginButton(Button):
 
 class LoginPage(BasePageObject):
     def __init__(self, driver):
-        self.driver = driver
+        super().__init__(driver, Locators.LoginPage.login_button)
         self.account_code_inputbox = AccountCodeInputbox(driver)
         self.user_name_inputbox = UserNameInputbox(driver)
         self.password_inputbox = PasswordInputbox(driver)

@@ -32,6 +32,7 @@ class StatusObject:
         self.colour_sets_required = []
 
     def add_message(self, message):
+        print(message)
         self.messages.append(message)
 
     def requires_colour(self, colour):

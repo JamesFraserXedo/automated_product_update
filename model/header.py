@@ -19,10 +19,19 @@ class LiveProductsButton(Button):
         )
 
 
+class DraftProductsButton(Button):
+    def __init__(self, driver):
+        super().__init__(
+            driver=driver,
+            locator=Locators.Header.draft_products_button
+        )
+
+
 class Header(BasePageObject):
     def __init__(self, driver):
-        self.driver = driver
+        super().__init__(driver, Locators.Header.draft_products_button)
         self.add_product_button = AddProductButton(driver)
         self.live_products_button = LiveProductsButton(driver)
+        self.draft_products_button = DraftProductsButton(driver)
 
 

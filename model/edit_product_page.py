@@ -135,7 +135,7 @@ class EditColoursButton(Button):
 
 class EditProductPage(BasePageObject):
     def __init__(self, driver):
-        self.driver = driver
+        super().__init__(driver, Locators.ProductForm.image_uploader)
         self.code_inputbox = CodeInputbox(driver)
         self.name_inputbox = NameInputbox(driver)
         self.collection_select = CollectionSelect(driver)

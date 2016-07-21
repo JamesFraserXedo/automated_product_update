@@ -1,4 +1,7 @@
 import time
+from selenium.common.exceptions import ElementNotVisibleException, ElementNotSelectableException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
 from model.locators import Locators
 from model.object.elements import *
@@ -30,9 +33,9 @@ class ActivateFilterButton(Button):
         )
 
 
-class LiveProductsListPage(BasePageObject):
+class DraftProductsListPage(BasePageObject):
     def __init__(self, driver):
-        super().__init__(driver, Locators.LiveProductListPage.header)
+        super().__init__(driver, Locators.DraftProductsListPage.delete_draft_product_label)
         self.code_filter_button = CodeFilterButton(driver)
         self.filter_inputbox = FilterInputbox(driver)
         self.activate_filter_button = ActivateFilterButton(driver)
@@ -51,7 +54,6 @@ class LiveProductsListPage(BasePageObject):
         # self.activate_filter_button.click()
         time.sleep(1)
 
-
         if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
             Utils.find_element_by_xpath_wait(self.driver, "//a[text()='Code']").click()
             if (len(self.driver.find_elements_by_xpath("//*[@data-title='Code']//*[@class='k-icon k-i-arrow-n']"))) == 0:
@@ -62,7 +64,15 @@ class LiveProductsListPage(BasePageObject):
                         raise Exception('Could not sort list')
 
     def number_of_results(self, code):
-        return len(self.driver.find_elements_by_xpath("//tr[@role='row']/td[text()='{}']/..//*[@title='Edit']".format(code)))
+        self.filter_by_code(code)
+        return len(self.driver.find_elements_by_xpath("//tr[@role='row']/td[text()='{}']/..//input[@value='Delete']".format(code)))
 
-    def edit_product_button(self, code):
-        return Utils.find_element_by_xpath_wait(self.driver, "//tr[@role='row']/td[text()='{}']/..//*[@title='Edit']".format(code))
+    def delete_draft(self, code):
+        before_text = Utils.find_element_by_xpath_wait(self.driver, "//*[@id='topPager']/span").text
+        Utils.find_element_by_xpath_wait(self.driver, "//tr[@role='row']/td[text()='{}']/..//input[@value='Delete']".format(code)).click()
+        time.sleep(1)
+        alert = self.driver.switch_to_alert()
+        alert.accept()
+
+        while Utils.find_element_by_xpath_wait(self.driver, "//*[@id='topPager']/span", timeout=120).text == before_text:
+            pass

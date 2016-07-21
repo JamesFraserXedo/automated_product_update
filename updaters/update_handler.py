@@ -1,6 +1,9 @@
+import os
 import threading
+import time
 import traceback
 
+import Utils
 from StatusObject import StatusObject
 from codec import *
 from updaters.base_updater import BaseUpdater
@@ -17,16 +20,23 @@ class UpdateHandler(threading.Thread):
     def run(self):
         updater = BaseUpdater(self.customer_code)
         updater.impersonate()
-
         item = self.get_next_item()
         while item:
             try:
                 status_message = updater.update_product(item)
             except Exception as e:
-                status_message = StatusObject(ERROR, [str(e), ''.join(traceback.format_exc())])
+                screenshot = Utils.screenshot(updater.driver, id=item.style)
 
-            self.logger.log(product=item, status=status_message.status, messages=status_message.messages)
+                status_message = StatusObject(ERROR, [str(e), ''.join(traceback.format_exc())])
+                self.logger.print(item.style)
+                self.logger.error(e)
+                self.logger.print('Screenshot: {}'.format(screenshot))
+
+            #self.logger.log(product=item, status=status_message.status, messages=status_message.messages)
             self.html_builder.status_objects.append(status_message)
+
+            print('{}: {}'.format(status_message.code, status_message.status))
+
             item = self.get_next_item()
 
         updater.teardown()

@@ -2,13 +2,16 @@ import time
 from selenium import webdriver
 from selenium.webdriver.support.select import Select
 from Tools import *
+from items.base_item import BaseItem
 from model.admin_page import AdminPage
 from model.colour_palette import ColourPalette
+from model.draft_product_list_page import DraftProductsListPage
 from model.edit_product_page import EditProductPage
 from model.header import Header
 from model.impersonate_page import ImpersonatePage
 from model.live_product_list_page import LiveProductsListPage
 from model.login_page import LoginPage
+from model.object.menu_page import MenuPage
 from product_types import ProductTypes
 from StatusObject import StatusObject
 from credentials import Credentials
@@ -22,11 +25,13 @@ class BaseUpdater:
 
     def __init__(self, customer_code):
         self.driver = webdriver.Firefox()
+        self.menu_page = MenuPage(self.driver)
         self.login_page = LoginPage(self.driver)
         self.admin_page = AdminPage(self.driver)
         self.header = Header(self.driver)
         self.impersonate_page = ImpersonatePage(self.driver)
-        self.live_product_list_page = LiveProductsListPage(self.driver)
+        self.live_products_list_page = LiveProductsListPage(self.driver)
+        self.draft_products_list_page = DraftProductsListPage(self.driver)
         self.product_page = EditProductPage(self.driver)
         self.colour_palette = ColourPalette(self.driver)
         self.customer_code = customer_code
@@ -34,6 +39,8 @@ class BaseUpdater:
         self.status_object = None
 
     def impersonate(self):
+        assert self.driver is not None
+
         self.driver.get(Credentials.url)
 
         self.login_page.login(
@@ -46,7 +53,12 @@ class BaseUpdater:
 
         self.impersonate_page.impersonate(self.customer_code)
 
+        self.menu_page.wait_until_on_page()
+        assert self.menu_page.on_page
+
     def update_product(self, product):
+        assert isinstance(product, BaseItem)
+
         self.messages = []
         self.status_object = StatusObject(code=product.style)
 
@@ -58,8 +70,8 @@ class BaseUpdater:
             self.status_object.add_message("More than one product with this code ({}) found".format(product.style))
             self.status_object.status = ERROR
         else:
-            self.live_product_list_page.edit_product_button(product.style).click()
-
+            self.live_products_list_page.edit_product_button(product.style).click()
+            self.product_page.wait_until_on_page()
             self.check_code(product)
             self.check_collection(product)
             self.check_size_range(product)
@@ -73,9 +85,17 @@ class BaseUpdater:
             else:
                 self.product_page.save_button.click()
 
+        assert isinstance(self.status_object, StatusObject)
         return self.status_object
 
     def handle_creation(self, product):
+        assert isinstance(product, BaseItem)
+
+        self.header.draft_products_button.click()
+        self.draft_products_list_page.wait_until_on_page()
+        while self.draft_products_list_page.number_of_results(product.style) > 0:
+            self.draft_products_list_page.delete_draft(product.style)
+
         self.header.add_product_button.click()
 
         brand_select = Select(Utils.find_element_by_id_wait(self.driver, "BrandUnid"))
@@ -87,7 +107,7 @@ class BaseUpdater:
         elif product.product_type == ProductTypes.MoriLee.WEDDING_DRESS:
             product_select.select_by_visible_text('Wedding Dress')
         else:
-            self.status_object.status = CREATED
+            self.status_object.status = ERROR
             self.status_object.add_message("Could not select product type {}".format(product.product_type))
             return self.status_object
 
@@ -119,12 +139,10 @@ class BaseUpdater:
 
         self.product_page.set_size_range(product.size_lower, product.size_upper)
         if product.colours_available:
-            self.product_page.edit_colours_button.click()
-            messages = self.colour_palette.update_colours(product.colours_available)
+            messages = self.colour_palette.update_colours(product.colours_available, self.status_object)
             self.status_object.new_colours = self.product_page.current_colours
         elif product.colour_set:
-            self.product_page.edit_colours_button.click()
-            messages = self.colour_palette.update_colour_set(product.colour_set)
+            messages = self.colour_palette.update_colour_set(product.colour_set, self.status_object)
             self.status_object.new_colours = self.product_page.current_colour_set
 
         if len(messages) > 0:
@@ -132,8 +150,8 @@ class BaseUpdater:
             self.status_object.add_message(messages)
 
         if product.marketing_info:
-            self.product_page.append_consumer_marketing_info(product.marketing_info)
-            self.product_page.append_retailer_marketing_info(product.marketing_info)
+            self.product_page.append_consumer_marketing_info(product.marketing_info, self.status_object)
+            self.product_page.append_retailer_marketing_info(product.marketing_info, self.status_object)
 
             if 'Available in 3 lengths - standard 61", 58" & 55"' in product.marketing_info:
                 self.product_page.expand_all_options_button.click()
@@ -148,21 +166,24 @@ class BaseUpdater:
         else:
             self.product_page.save_button.click()
 
+        self.draft_products_list_page.wait_until_on_page()
+        assert self.draft_products_list_page.on_page
+
     def teardown(self):
         self.driver.quit()
-        pass
 
     def num_of_products(self, product):
-        self.header.live_products_button.click()
-        self.live_product_list_page.filter_by_code(product.style)
-        return self.live_product_list_page.number_of_results(product.style)
+        if not self.live_products_list_page.on_page:
+            self.header.live_products_button.click()
+        self.live_products_list_page.wait_until_on_page()
+        self.live_products_list_page.filter_by_code(product.style)
+        return self.live_products_list_page.number_of_results(product.style)
 
     def check_code(self, product):
         if self.status_object.status == ERROR:
             return
         if self.product_page.code_inputbox.text != product.style:
-            self.status_object.add_message("Attempted to update code {} , but accessed {} instead".format(product.style,
-                                                                                           self.product_page.code_inputbox.text))
+            self.status_object.add_message("Attempted to update code {} , but accessed {} instead".format(product.style, self.product_page.code_inputbox.text))
             self.status_object.status = ERROR
 
     def check_collection(self, product):
@@ -176,7 +197,7 @@ class BaseUpdater:
     def check_size_range(self, product):
         if self.status_object.status == ERROR:
             return
-        if product.uk_size_range.replace(' ', '') not in self.product_page.size_range_select.options:
+        if product.uk_size_range.replace(' ', '') not in self.product_page.size_range_select.selected:
             self.status_object.add_message("Expected size range {} , but found {} instead".format(product.uk_size_range,
                                                                                    self.product_page.size_range_select.selected))
             self.status_object.status = ERROR

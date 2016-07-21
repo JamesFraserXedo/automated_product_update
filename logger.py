@@ -1,5 +1,6 @@
 import os
 import time
+import traceback
 
 from codec import *
 from locking import get_key, unlock
@@ -19,6 +20,14 @@ class Logger:
             WARNING: []
         }
 
+    def print(self, text):
+        get_key()
+
+        with open(self.file_location, "a") as logfile:
+            print(text, file=logfile)
+
+        unlock()
+
     def log(self, product, status, messages):
         get_key()
 
@@ -27,4 +36,17 @@ class Logger:
             for message in messages:
                 print(("\t{}".format(message)), file=logfile)
             print("", file=logfile)
+        unlock()
+
+    def error(self, e):
+        get_key()
+
+        with open(self.file_location, "a") as logfile:
+
+            print('{}: {}'.format(type(e).__name__, str(e)), file=logfile)
+            print('', file=logfile)
+            print(traceback.format_exc(), file=logfile)
+            print('', file=logfile)
+            print('', file=logfile)
+
         unlock()

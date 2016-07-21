@@ -1,4 +1,9 @@
+import time
+from selenium.common.exceptions import ElementNotVisibleException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
 import Utils
 
@@ -25,8 +30,17 @@ class BasePageElement(object):
 class Button(BasePageElement):
     def __init__(self, driver, locator):
         super().__init__(driver, locator)
+        self.wait = WebDriverWait(
+            driver,
+            60,
+            poll_frequency=1,
+            ignored_exceptions=[
+                ElementNotVisibleException
+            ]
+        )
 
     def click(self):
+        self.wait.until(expected_conditions.element_to_be_clickable(self.locator))
         self.element.click()
 
 
@@ -34,9 +48,16 @@ class Inputbox(BasePageElement):
     def __init__(self, driver, locator):
         super().__init__(driver, locator)
 
-    @BasePageElement.text.setter
+    @property
+    def text(self):
+        return self.element.get_attribute("value")
+
+    @text.setter
     def text(self, value):
         self.send_keys(value)
+
+    def submit(self):
+        self.element.send_keys(Keys.ENTER)
 
 
 class Selector(BasePageElement):

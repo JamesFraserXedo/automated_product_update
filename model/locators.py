@@ -32,7 +32,8 @@ class Locators:
 
     class Header:
         add_product_button = (By.XPATH, "//a[text()='Add Product']")
-        live_products_button= (By.XPATH, "//a[text()='Live Products']")
+        live_products_button = (By.XPATH, "//a[text()='Live Products']")
+        draft_products_button = (By.XPATH, "//a[text()='Draft Products']")
 
     class ImpersonatePage:
         customer_code_inputbox = (By.XPATH, "//*[@class='custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left ui-autocomplete-input']")
@@ -41,7 +42,8 @@ class Locators:
         first_result = (By.XPATH, "//*[@id='ui-id-1']/li")
 
     class LiveProductListPage:
-        code_filter_button = (By.XPATH, "//*[@data-title='Code']//span[@class='k-icon k-filter']")
+        header = (By.XPATH, "//h2[text()='Live Product List']")
+        code_filter_button = (By.XPATH, "//*[@data-title='Code']//*[@class='k-icon k-filter']")
         filter_inputbox = (By.XPATH, "//input[@class='k-textbox']")
         activate_filter_button = (By.XPATH, "//button[@type='submit']")
 
@@ -58,3 +60,9 @@ class Locators:
         save_button = (By.ID, "SaveDialog")
         colour_set_select = (By.ID, "ColourSet")
         add_colour_set_button = (By.ID, "AddColourSet")
+
+    class DraftProductsListPage:
+        delete_draft_product_label = (By.XPATH, "//*[@data-title='Delete Draft Product']")
+
+    class MenuPage:
+        product_setup_panel = (By.XPATH, "//*[@class='menuPanel productSetup']")

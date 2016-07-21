@@ -30,7 +30,7 @@ class ImpersonateButton(Button):
 
 class ImpersonatePage(BasePageObject):
     def __init__(self, driver):
-        self.driver = driver
+        super().__init__(driver, Locators.ImpersonatePage.customer_code_inputbox)
         self.customer_code_inputbox = CustomerCodeInputbox(driver)
         self.select_retailer_button = SelectRetailerButton(driver)
         self.impersonate_button = ImpersonateButton(driver)
