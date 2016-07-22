@@ -27,7 +27,7 @@ class UpdateHandler(threading.Thread):
             except Exception as e:
                 screenshot = Utils.screenshot(updater.driver, id=item.style)
 
-                status_message = StatusObject(ERROR, [str(e), ''.join(traceback.format_exc())])
+                status_message = StatusObject(item.style, ERROR, [str(e), ''.join(traceback.format_exc())])
                 self.logger.print(item.style)
                 self.logger.error(e)
                 self.logger.print('Screenshot: {}'.format(screenshot))

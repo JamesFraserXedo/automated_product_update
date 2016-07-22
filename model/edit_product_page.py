@@ -219,5 +219,5 @@ class EditProductPage(BasePageObject):
         if old_contents != new_contents:
             self.retailer_marketing_info_inputbox.text = Tools.list_to_string(new_contents)
 
-            status_object.old_retail_comments = old_contents
-            status_object.new_retail_comments = new_contents
+            status_object.old_retailer_comments = old_contents
+            status_object.new_retailer_comments = new_contents

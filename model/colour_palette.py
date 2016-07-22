@@ -85,10 +85,7 @@ class ColourPalette(BasePageObject):
                     self.colour_select.selector.deselect_all()
                     self.colour_select.selector.select_by_visible_text(colour)
                     self.select_highlighted_button.click()
-                except Exception as e:
-                    print("Colour error")
-                    print(str(e))
-                    print(traceback.format_exc())
+                except Exception:
                     messages.append("Could not add colour {}".format(colour))
                     status_object.requires_colour(colour)
 
@@ -114,9 +111,7 @@ class ColourPalette(BasePageObject):
         try:
             self.colour_select.selector.select_by_visible_text(colour_set)
             self.add_colour_set_button.click()
-        except Exception as e:
-            print("Colour set error")
-            print(traceback.format_exc())
+        except Exception:
             messages.append("Could not add colour set {}".format(colour_set))
             status_object.requires_colour_set(colour_set)
 

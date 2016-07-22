@@ -1,4 +1,6 @@
 import copy
+import traceback
+
 import xlrd
 from credentials import Credentials
 from codec import *
@@ -53,10 +55,15 @@ class BaseRunner:
 
     def run(self):
         for sheet in self.sheets_to_update:
-            self.update(
-                sheet_name=sheet[SHEET_NAME],
-                loader=sheet[LOADER],
-                customer_code=self.customer_code,
-                collection_name=sheet[COLLECTION],
-                product_type=sheet[PRODUCT_TYPE]
-            )
+            try:
+                self.update(
+                    sheet_name=sheet[SHEET_NAME],
+                    loader=sheet[LOADER],
+                    customer_code=self.customer_code,
+                    collection_name=sheet[COLLECTION],
+                    product_type=sheet[PRODUCT_TYPE]
+                )
+            except Exception as e:
+                print("Update error")
+                print(str(e))
+                print(traceback.format_exc())

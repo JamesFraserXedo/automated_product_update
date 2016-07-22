@@ -20,12 +20,4 @@ class BaseItem(object):
         return str(self.uk_size_range).split("-")[1].strip()
 
     def __repr__(self):
-        return str({
-            "style": self.style,
-            "comments": self.comments,
-            "uk_wholesale_price": self.uk_wholesale_price,
-            "colours_available": self.colours_available,
-            "uk_size_range": self.uk_size_range,
-            "collection": self.collection,
-            "marketing_info": self.marketing_info
-        })
+        return str(self.__dict__)

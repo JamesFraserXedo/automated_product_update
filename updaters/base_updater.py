@@ -149,6 +149,10 @@ class BaseUpdater:
             self.status_object.status = ERROR
             self.status_object.add_message(messages)
 
+        if product.comments:
+            self.product_page.append_consumer_marketing_info(product.comments, self.status_object)
+            self.product_page.append_retailer_marketing_info(product.comments, self.status_object)
+
         if product.marketing_info:
             self.product_page.append_consumer_marketing_info(product.marketing_info, self.status_object)
             self.product_page.append_retailer_marketing_info(product.marketing_info, self.status_object)
@@ -206,7 +210,7 @@ class BaseUpdater:
         if self.status_object.status == ERROR:
             return
         current_uk_wholesale_price = self.product_page.price_inputbox.text
-        if current_uk_wholesale_price != product.uk_wholesale_price:
+        if float(current_uk_wholesale_price) != float(product.uk_wholesale_price):
             self.status_object.status = UPDATED
             self.product_page.price_inputbox.send_keys(str(round(product.uk_wholesale_price, 0)))
             self.status_object.old_price = current_uk_wholesale_price
@@ -219,7 +223,7 @@ class BaseUpdater:
         current_rrp = self.product_page.rrp_inputbox.text
         expected_rrp = str(round(product.uk_wholesale_price * RRP_MULTIPLIER, 0))
 
-        if current_rrp != expected_rrp:
+        if float(current_rrp) != float(expected_rrp):
             self.status_object.status = UPDATED
             self.product_page.rrp_inputbox.text = expected_rrp
 
@@ -229,6 +233,11 @@ class BaseUpdater:
     def check_marketing_info(self, product):
         if self.status_object.status == ERROR:
             return
+
+        if product.comments:
+            self.product_page.append_consumer_marketing_info(product.comments, self.status_object)
+            self.product_page.append_retailer_marketing_info(product.comments, self.status_object)
+
         if product.marketing_info:
             self.product_page.append_consumer_marketing_info(product.marketing_info, self.status_object)
             self.product_page.append_retailer_marketing_info(product.marketing_info, self.status_object)
@@ -250,11 +259,11 @@ class BaseUpdater:
 
             if sorted(current_colours) != sorted(product_colours):
 
-                colour_messages = self.product_page.update_colours(product_colours)
+                colour_messages = self.colour_palette.update_colours(product_colours, self.status_object)
                 if len(colour_messages) == 0:
                     self.status_object.status = UPDATED
                 else:
-                    self.status_object.status = WARNING
+                    self.status_object.status = ERROR
 
                 self.messages += colour_messages
                 old_colours = current_colours
@@ -269,11 +278,11 @@ class BaseUpdater:
 
             if current_colour_set != product_colour_set:
 
-                colour_messages = self.product_page.update_colour_set(product_colour_set)
+                colour_messages = self.colour_palette.update_colour_set(product_colour_set, self.status_object)
                 if len(colour_messages) == 0:
                     self.status_object.status = UPDATED
                 else:
-                    self.status_object.status = WARNING
+                    self.status_object.status = ERROR
 
                 self.messages += colour_messages
                 old_colour_set = current_colour_set

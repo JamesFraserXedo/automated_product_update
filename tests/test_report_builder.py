@@ -59,7 +59,19 @@ class TestTools(unittest.TestCase):
             'ElephantTusk'
         ]
         so.new_features = None
-        so.new_comments = "Available in 2 lengths\nshort\nlong"
+
+        so.old_consumer_comments = ['Fishtail, Organza with subtle beaded bodice.', '',
+                                    'Removable One-Shoulder Strap for a modern day to night look.', '',
+                                    'Available in three lengths - 55", 58" and 61".']
+        so.new_consumer_comments = ['Fishtail, Organza with subtle beaded bodice.', '',
+                                    'Removable One-Shoulder Strap for a modern day to night look.', '',
+                                    'Available in three lengths - 55", 58" and 61".',
+                                    'Available in 3 lengths - standard 61", 58" & 55".',
+                                    'Please note: lengths 58" & 55" are classed as "Specials" with additonal lead-time to standard of 4 weeks']
+
+        so.old_consumer_comments = []
+        so.new_consumer_comments = ['Available in 3 lengths - standard 61", 58" & 55".',
+                                    'Please note: lengths 58" & 55" are classed as "Specials" with additonal lead-time to standard of 4 weeks']
 
         return so
 
@@ -82,7 +94,17 @@ class TestTools(unittest.TestCase):
             so.new_features = 'Special Lengths'
 
         if comments:
-            so.old_comments = 'Available in 3 lengths'
-            so.new_comments = 'Available in 2 lengths: short or long'
+            so.old_consumer_comments = ['Fishtail, Organza with subtle beaded bodice.', '',
+                                        'Removable One-Shoulder Strap for a modern day to night look.', '',
+                                        'Available in three lengths - 55", 58" and 61".']
+            so.new_consumer_comments = ['Fishtail, Organza with subtle beaded bodice.', '',
+                                        'Removable One-Shoulder Strap for a modern day to night look.', '',
+                                        'Available in three lengths - 55", 58" and 61".',
+                                        'Available in 3 lengths - standard 61", 58" & 55".',
+                                        'Please note: lengths 58" & 55" are classed as "Specials" with additonal lead-time to standard of 4 weeks']
+
+            so.old_retailer_comments = []
+            so.new_retailer_comments = ['Available in 3 lengths - standard 61", 58" & 55".',
+                                        'Please note: lengths 58" & 55" are classed as "Specials" with additonal lead-time to standard of 4 weeks']
 
         return so

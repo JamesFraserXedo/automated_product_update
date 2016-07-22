@@ -15,12 +15,12 @@ class MoriLeeRunner(BaseRunner):
     customer_code = 'XMORILEE'
 
     sheets_to_update = [
-        {
-            COLLECTION: Collections.MoriLee.MORI_LEE_BRIDAL,
-            PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
-            LOADER: MoriLeeLoader(),
-            SHEET_NAME: SheetNames.MoriLee.MAIN
-        },
+        # {
+        #     COLLECTION: Collections.MoriLee.MORI_LEE_BRIDAL,
+        #     PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
+        #     LOADER: MoriLeeLoader(),
+        #     SHEET_NAME: SheetNames.MoriLee.MAIN
+        # },
         # {
         #     COLLECTION: Collections.MoriLee.BLU_BRIDAL,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
@@ -33,7 +33,7 @@ class MoriLeeRunner(BaseRunner):
         #     LOADER: VoyageLoader(),
         #     SHEET_NAME: SheetNames.MoriLee.VOYAGE
         # },
-        # { # Need the photo directory
+        # {
         #     COLLECTION: Collections.MoriLee.ANGELINA_FACCENDA_BRIDAL,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.WEDDING_DRESS,
         #     LOADER: MoriLeeLoader(),
@@ -45,12 +45,12 @@ class MoriLeeRunner(BaseRunner):
         #     LOADER: MoriLeeLoader(),
         #     SHEET_NAME: SheetNames.MoriLee.JULIETTA
         # },
-        # {
-        #     COLLECTION: Collections.MoriLee.TULLE_AFFAIRS,
-        #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
-        #     LOADER: ColourSetLoader(),
-        #     SHEET_NAME: SheetNames.MoriLee.TULLE_AFFAIRS
-        # },
+        {
+            COLLECTION: Collections.MoriLee.TULLE_AFFAIRS,
+            PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
+            LOADER: ColourSetLoader(),
+            SHEET_NAME: SheetNames.MoriLee.TULLE_AFFAIRS
+        },
         # {
         #     COLLECTION: Collections.MoriLee.AFFAIRS,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,
@@ -78,9 +78,9 @@ class MoriLeeRunner(BaseRunner):
         #     SHEET_NAME: SheetNames.MoriLee.AF_ABM
         # },
 
-        """
-        Ignore Sticks and Paparazzi Cont
-        """
+        #
+        # Ignore Sticks and Paparazzi Cont
+        #
         # {
         #     COLLECTION: Collections.MoriLee.,
         #     PRODUCT_TYPE: ProductTypes.MoriLee.BRIDESMAID_DRESS,

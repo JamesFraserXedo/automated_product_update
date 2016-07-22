@@ -17,6 +17,7 @@ class HtmlBuilder:
         self.collection = collection
 
     def build(self):
+
         try:
             self.building = open(self.html_file, "a")
 
@@ -60,6 +61,8 @@ class HtmlBuilder:
                 print("</ul>", file=self.building)
 
             print("</html>", file=self.building)
+        except:
+            print(self.status_objects)
         finally:
             self.building.close()
 
@@ -128,8 +131,9 @@ class HtmlBuilder:
             print('<td>{}</td>'.format(record.new_image), file=self.building)
 
             print('<td><ul>', file=self.building)
-            for image in record.all_images:
-                print('<li>{}</li>'.format(image), file=self.building)
+            if record.all_images:
+                for image in record.all_images:
+                    print('<li>{}</li>'.format(image), file=self.building)
             print('</ul></td>', file=self.building)
 
             print('<td>{}</td>'.format(record.new_size), file=self.building)
@@ -137,11 +141,18 @@ class HtmlBuilder:
             print('<td>{}</td>'.format(record.new_rrp), file=self.building)
 
             print('<td><ul>', file=self.building)
-            for colour in record.new_colours:
-                print('<li>{}</li>'.format(colour), file=self.building)
+            if record.new_colours:
+                for colour in record.new_colours:
+                    print('<li>{}</li>'.format(colour), file=self.building)
             print('</ul></td>', file=self.building)
 
-            print('<td>{}</td>'.format(record.new_retailer_comments), file=self.building)
+            print('<td>', file=self.building)
+            if record.new_retailer_comments:
+                for comment in record.new_retailer_comments:
+                    if comment != '':
+                        print('{}<br>'.format(comment), file=self.building)
+            print('</td>', file=self.building)
+
             print('<td>{}</td>'.format(record.new_features), file=self.building)
 
         elif key == UPDATED:
@@ -162,12 +173,34 @@ class HtmlBuilder:
 
             print('<td>', file=self.building)
             if record.old_retailer_comments or record.new_retailer_comments:
-                print('From: {}<br>To: {}'.format(record.old_retailer_comments, record.new_retailer_comments), file=self.building)
+                print('From:<br>', file=self.building)
+                if not record.old_retailer_comments:
+                    print('(Empty)<br>', file=self.building)
+                for comment in record.old_retailer_comments:
+                    if comment != '':
+                        print('{}<br>'.format(comment), file=self.building)
+                print('To:<br>', file=self.building)
+                if not record.new_retailer_comments:
+                    print('(Empty)<br>', file=self.building)
+                for comment in record.new_retailer_comments:
+                    if comment != '':
+                        print('{}<br>'.format(comment), file=self.building)
             print('</td>', file=self.building)
 
             print('<td>', file=self.building)
             if record.old_consumer_comments or record.new_consumer_comments:
-                print('From: {}<br>To: {}'.format(record.old_consumer_comments, record.new_consumer_comments), file=self.building)
+                print('From:<br>', file=self.building)
+                if not record.old_consumer_comments:
+                    print('(Empty)<br>', file=self.building)
+                for comment in record.old_consumer_comments:
+                    if comment != '':
+                        print('{}<br>'.format(comment), file=self.building)
+                print('To:<br>', file=self.building)
+                if not record.new_consumer_comments:
+                    print('(Empty)<br>', file=self.building)
+                for comment in record.new_consumer_comments:
+                    if comment != '':
+                        print('{}<br>'.format(comment), file=self.building)
             print('</td>', file=self.building)
 
             print('<td>', file=self.building)
